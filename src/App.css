@@ -1,235 +1,181 @@
-/* ОБНУЛЕНИЕ И БАЗА */
 :root {
-  --bg-color: #F2F2F7; /* iOS Grey */
-  --card-white: #FFFFFF;
-  --primary: #000000;
-  --accent: #FF4081; /* Женственный спорт */
-  --text-gray: #8E8E93;
-  --nav-bg: rgba(255, 255, 255, 0.85);
-}
-
-* {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent; /* Убирает синий квадрат при клике на Андроиде */
+  --bg: #F2F2F7;
+  --card: #FFFFFF;
+  --text: #1C1C1E;
+  --gray: #8E8E93;
+  --accent: #FF2D55; /* Розово-красный спорт */
 }
 
 body {
   margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-  background-color: var(--bg-color);
-  color: #000;
-  /* Блокируем скролл всей страницы, чтобы она не прыгала */
-  overflow: hidden; 
-  user-select: none; /* Чтобы текст не выделялся как на сайте */
+  background: var(--bg);
+  font-family: -apple-system, sans-serif;
+  color: var(--text);
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* КОНТЕЙНЕР ПРИЛОЖЕНИЯ */
 .app-container {
-  width: 100%;
-  height: 100dvh; /* Dynamic Viewport Height - важно для мобилок */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 
-/* СКРОЛЛ КОНТЕНТА */
-.content-scrollable {
+/* ШАПКА ФИКСИРОВАННАЯ */
+.fixed-header {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
+}
+.header-text h1 { margin: 0; font-size: 22px; font-weight: 900; letter-spacing: -1px; }
+
+.profile-bubble {
+  width: 40px; height: 40px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+.profile-bubble img { width: 100%; height: 100%; object-fit: cover; }
+
+/* КОНТЕНТ */
+.content-area {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 20px 16px; /* Отступы по бокам */
-  padding-bottom: 110px; /* Чтобы контент не залез под меню */
-  
-  /* Скрываем скроллбар, но оставляем скролл */
-  -ms-overflow-style: none;
+  position: relative;
+  overflow: hidden; /* Скрываем вылеты анимации */
+}
+
+.page {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow-y: auto; /* Скролл внутри страницы */
+  padding: 10px 20px 120px 20px; /* Отступ снизу под меню */
   scrollbar-width: none;
 }
-.content-scrollable::-webkit-scrollbar {
-  display: none;
-}
+.page::-webkit-scrollbar { display: none; }
 
-/* ЗАГОЛОВКИ И ТЕКСТ */
-.top-header {
+/* ГЛАВНАЯ */
+.greeting-block h2 { margin: 10px 0 5px; font-size: 26px; }
+.greeting-block p { color: var(--gray); margin: 0 0 20px; }
+
+/* СЛАЙДЕР НОВОСТЕЙ */
+.news-slider {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-top: 10px;
+  gap: 15px;
+  overflow-x: auto;
+  padding-bottom: 20px; /* Место для тени */
+  margin: 0 -20px; /* Чтобы вылезало за края */
+  padding: 0 20px 20px 20px; /* Отступы контента */
+  scrollbar-width: none;
 }
-.greeting {
-  font-size: 28px;
-  font-weight: 800;
-  margin: 0;
-  letter-spacing: -0.5px;
-}
-.subtitle {
-  color: var(--text-gray);
-  margin: 4px 0 0 0;
-  font-size: 15px;
-}
-.page-title {
-  font-size: 32px;
-  font-weight: 800;
-  margin: 10px 0 20px 0;
-}
+.news-slider::-webkit-scrollbar { display: none; }
 
-.avatar-placeholder {
-  width: 40px;
-  height: 40px;
-  background: #000;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-/* БАННЕР */
-.hero-card {
-  background: linear-gradient(120deg, #2b2b2b 0%, #000000 100%);
-  border-radius: 24px;
-  padding: 20px;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-.hero-text h3 { margin: 0; font-size: 20px; }
-.hero-text p { margin: 5px 0 0 0; opacity: 0.8; font-size: 14px; }
-.hero-icon { font-size: 32px; }
-
-/* СЕТКА ИНФО */
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.info-card {
-  background: var(--card-white);
-  padding: 16px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-}
-.info-card span { font-size: 24px; display: block; margin-bottom: 5px; }
-.info-card p { margin: 0; color: var(--text-gray); font-size: 13px; }
-.info-card b { font-size: 18px; display: block; margin-top: 4px; }
-
-/* КАРТОЧКИ МАРАФОНОВ */
-.program-card {
-  background: var(--card-white);
-  border-radius: 24px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-}
-.card-image-placeholder {
+.news-card {
+  min-width: 240px;
   height: 140px;
-  display: flex;
-  align-items: flex-end;
-  padding: 15px;
-  color: white;
-  font-weight: bold;
-}
-.card-image-placeholder span {
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(5px);
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-}
-.card-body { padding: 16px; }
-.card-body h3 { margin: 0 0 5px 0; font-size: 20px; }
-.card-body p { margin: 0 0 15px 0; color: var(--text-gray); font-size: 14px; }
-.card-footer { display: flex; justify-content: space-between; align-items: center; }
-.price { font-size: 22px; font-weight: 800; }
-.buy-btn {
-  background: #000;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 14px;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-/* ЗДОРОВЬЕ */
-.stat-row { display: flex; gap: 12px; margin-bottom: 12px; }
-.stat-card {
-  flex: 1;
-  background: var(--card-white);
-  padding: 16px;
-  border-radius: 20px;
-}
-.stat-card p { margin: 0 0 5px 0; color: var(--text-gray); font-size: 13px; }
-.stat-card h3 { margin: 0; font-size: 24px; }
-.unit { font-size: 14px; color: var(--text-gray); font-weight: normal; }
-
-.long-card {
-  background: var(--card-white);
-  padding: 20px;
   border-radius: 24px;
-}
-.card-row { display: flex; justify-content: space-between; align-items: center; }
-.card-row h3 { margin: 0 0 4px 0; font-size: 16px; }
-.card-row p { margin: 0; font-size: 14px; }
-
-/* --- ОСТРОВ НАВИГАЦИИ (ISLAND) --- */
-.bottom-nav-container {
-  position: fixed;
-  bottom: 30px; /* Отступ от самого низа */
-  left: 0;
-  right: 0;
+  padding: 20px;
+  color: #1a1a1a;
   display: flex;
-  justify-content: center;
-  z-index: 1000;
-  pointer-events: none; /* Чтобы клики по бокам проходили сквозь контейнер */
-}
-
-.nav-island {
-  pointer-events: auto; /* Сам остров кликабельный */
-  background: var(--nav-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 8px 24px;
-  border-radius: 100px; /* Полностью круглые края */
-  display: flex;
-  gap: 32px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-.nav-island button {
-  background: none;
-  border: none;
-  padding: 10px;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
   position: relative;
-  cursor: pointer;
-  color: #B0B0B5;
-  transition: color 0.2s;
+}
+.news-card h3 { margin: 0; font-size: 18px; line-height: 1.2; }
+.news-card p { margin: 0; font-size: 14px; opacity: 0.7; }
+.news-icon { 
+  position: absolute; bottom: 15px; right: 15px; 
+  background: rgba(255,255,255,0.5); 
+  width: 30px; height: 30px; 
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+
+/* СОВЕТ ДНЯ */
+.daily-tip {
+  background: white;
+  padding: 15px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  margin-top: 10px;
+}
+.emoji { font-size: 30px; }
+.text p { margin: 0; font-size: 14px; color: var(--gray); }
+
+/* МАРАФОНЫ */
+.page-title { font-size: 30px; font-weight: 800; margin-bottom: 20px; }
+
+.marathon-card {
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+}
+/* Стили для Standard */
+.marathon-card.standard { background: #111; color: white; }
+.marathon-card.standard .tag { background: #FF2D55; color: white; padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; }
+.marathon-card.standard .m-btn { background: white; color: black; }
+
+/* Стили для Early */
+.marathon-card.early { background: white; color: black; border: 1px solid #eee; }
+.marathon-card.early .m-btn { background: #111; color: white; }
+
+.m-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.m-header h3 { margin: 0; font-size: 20px; }
+.m-desc { margin: 0 0 20px; opacity: 0.7; font-size: 14px; }
+.m-footer { display: flex; justify-content: space-between; align-items: center; }
+.m-price { font-size: 22px; font-weight: 800; }
+.m-btn { border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; }
+
+/* ЗДОРОВЬЕ ЗАГЛУШКА */
+.center-page { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.placeholder-circle { width: 80px; height: 80px; background: #FFEBEE; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+.demo-btn { margin-top: 20px; background: #eee; border: none; padding: 10px 20px; border-radius: 12px; color: #999; }
+
+/* НИЖНИЙ ОСТРОВ (ISLAND) */
+.bottom-nav-container {
+  position: fixed; bottom: 30px; left: 0; right: 0;
+  display: flex; justify-content: center; pointer-events: none; z-index: 100;
+}
+.nav-island {
+  pointer-events: auto;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(20px);
+  padding: 10px 30px;
+  border-radius: 100px;
+  display: flex; gap: 40px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+.nav-island button {
+  background: none; border: none; padding: 0;
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  color: #C7C7CC; transition: color 0.3s;
+}
+.nav-island button.active { color: #000; transform: scale(1.1); transition: 0.3s; }
+.nav-dot {
+  width: 5px; height: 5px; background: #000; border-radius: 50%;
+  position: absolute; bottom: -8px;
 }
 
-.nav-island button.active {
-  color: #000;
+/* МОДАЛКА */
+.backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+.modal {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: white; border-radius: 24px 24px 0 0;
+  padding: 10px 20px 40px; z-index: 201;
 }
-
-/* Точка под иконкой (анимированная) */
-.bubble {
-  position: absolute;
-  bottom: 0px;
-  width: 4px;
-  height: 4px;
-  background-color: #000;
-  border-radius: 50%;
-}
+.modal-top { height: 30px; display: flex; justify-content: center; align-items: center; }
+.bar { width: 40px; height: 5px; background: #eee; border-radius: 10px; }
+.profile-content { text-align: center; }
+.big-avatar { width: 80px; height: 80px; background: #f2f2f7; border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center; }
+.settings-row { width: 100%; padding: 15px; margin-top: 20px; border: none; background: #f9f9f9; border-radius: 14px; display: flex; align-items: center; gap: 10px; font-size: 16px; }
