@@ -5,7 +5,7 @@
   --text-sec: #8A8A8E;
   --island-bg: rgba(255, 255, 255, 0.8);
   --border: rgba(255, 255, 255, 0.5);
-  --btn-bg: #E5E5EA; /* Новый цвет для кнопок */
+  --btn-bg: #E5E5EA; 
   --accent: #FF2D55;
   --radius: 32px;
 }
@@ -29,17 +29,18 @@ body {
 
 .app-container { 
   height: 100dvh; display: flex; flex-direction: column; 
-  transition: filter 0.3s ease, transform 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* ЭФФЕКТ ГЛУБИНЫ (БЛЮР ФОНА) */
-.app-container.blurred {
-  filter: blur(8px) brightness(0.9);
-  transform: scale(0.96);
-  pointer-events: none;
+/* ЭФФЕКТ ОТДАЛЕНИЯ ПРИ ОТКРЫТИИ МОДАЛКИ (iOS Style) */
+.app-container.scale-down {
+  transform: scale(0.92);
+  border-radius: 20px;
+  overflow: hidden;
+  opacity: 0.8;
 }
 
-/* ЗАГРУЗОЧНЫЙ ЭКРАН */
+/* ЗАГРУЗКА */
 .loading-screen {
   position: fixed; inset: 0; background: var(--bg); z-index: 9999;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -54,6 +55,7 @@ body {
 }
 .header-logo { display: flex; align-items: center; gap: 12px; }
 .app-logo { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; }
+.app-logo-fallback { width: 34px; height: 34px; border-radius: 10px; background: #FF2D55; display: flex; align-items: center; justify-content: center; }
 .header-logo h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
 .profile-bubble {
   width: 44px; height: 44px; background: var(--card); border-radius: 50%;
@@ -85,6 +87,7 @@ body {
 .prem-img { width: 90px; height: 90px; object-fit: contain; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)); }
 .empty-text h3 { font-size: 20px; margin: 5px 0; font-weight: 700; }
 .empty-text p { font-size: 15px; color: var(--text-sec); margin: 0; }
+.icon-fallback { margin-bottom: 15px; }
 
 /* NAV */
 .bottom-nav-container { position: fixed; bottom: 35px; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; z-index: 100; }
@@ -97,28 +100,31 @@ body {
 .nav-island button.active { color: var(--text); }
 .nav-bg-bubble { position: absolute; inset: 0; background: var(--card); border-radius: 50%; z-index: -1; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 
-/* MODAL */
-.backdrop { position: fixed; inset: 0; background: transparent; z-index: 200; } /* Фон теперь прозрачный, блюр на контенте */
+/* MODAL FIX (ЧТОБЫ НЕ БЫЛО ЧЕРНОГО ЭКРАНА) */
+.backdrop { 
+  position: fixed; inset: 0; 
+  background: rgba(0,0,0,0.5); /* Полупрозрачный черный */
+  backdrop-filter: blur(3px);   /* Легкий блюр */
+  z-index: 200; 
+}
 .modal {
   position: fixed; bottom: 0; left: 0; right: 0; padding: 10px 24px 60px; z-index: 201; color: var(--text);
   border-radius: 36px 36px 0 0; background: var(--card);
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
 }
-.modal-top { display: flex; justify-content: center; padding: 10px 0 20px; cursor: grab; }
+.modal-top { display: flex; justify-content: center; padding: 10px 0 20px; cursor: pointer; }
 .bar { width: 40px; height: 5px; background: var(--text-sec); opacity: 0.2; border-radius: 10px; }
 
-/* ПРОФИЛЬ (ИДЕАЛЬНЫЙ ЦЕНТР) */
-.profile-header-center {
-  display: flex; flex-direction: column; align-items: center; text-align: center;
-  width: 100%; margin-bottom: 30px;
-}
+/* ПРОФИЛЬ */
+.profile-header-center { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; margin-bottom: 30px; }
 .big-avatar {
   width: 90px; height: 90px; background: var(--bg); border-radius: 50%; margin-bottom: 15px;
   overflow: hidden; display: flex; align-items: center; justify-content: center;
   box-shadow: 0 15px 30px rgba(0,0,0,0.1); border: 4px solid var(--card);
 }
 .big-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-header-center h3 { margin: 0 0 5px; font-size: 24px; font-weight: 700; width: 100%; text-align: center; }
-.username-tag { color: var(--text-sec); font-size: 15px; margin-bottom: 10px; width: 100%; text-align: center; }
+.profile-header-center h3 { margin: 0 0 5px; font-size: 24px; font-weight: 700; }
+.username-tag { color: var(--text-sec); font-size: 15px; margin-bottom: 10px; }
 .id-pill {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   background: var(--bg); padding: 6px 12px; border-radius: 20px;
@@ -126,25 +132,16 @@ body {
   border: 1px solid var(--border);
 }
 
-/* НАСТРОЙКИ (КНОПКИ) */
 .menu-item {
   padding: 18px; background: var(--btn-bg); border-radius: 24px;
-  display: flex; align-items: center; gap: 16px; font-weight: 600; cursor: pointer; margin-bottom: 12px;
-  transition: 0.2s;
+  display: flex; align-items: center; gap: 16px; font-weight: 600; cursor: pointer; margin-bottom: 12px; transition: 0.2s;
 }
 .lang-badge { margin-left: auto; font-size: 12px; font-weight: 800; background: var(--card); padding: 4px 8px; border-radius: 8px; opacity: 0.6; }
-
 .toggle-switch { width: 44px; height: 26px; background: #C7C7CC; border-radius: 20px; margin-left: auto; position: relative; transition: 0.3s; }
 .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: white; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: 0.3s; }
 [data-theme="dark"] .toggle-switch { background: #34C759; }
 [data-active="true"]::after { transform: translateX(18px); }
 
-.back-btn { 
-  margin-top: 20px; width: 100%; 
-  background: var(--text); color: var(--bg); 
-  border: none; padding: 16px; border-radius: 24px; 
-  font-weight: 700; font-size: 16px; cursor: pointer; 
-  display: flex; align-items: center; justify-content: center; gap: 10px; 
-}
+.back-btn { margin-top: 20px; width: 100%; background: var(--text); color: var(--bg); border: none; padding: 16px; border-radius: 24px; font-weight: 700; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .center-page { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; }
 .placeholder-circle { width: 90px; height: 90px; background: rgba(255,45,85,0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
