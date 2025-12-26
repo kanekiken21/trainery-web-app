@@ -33,7 +33,7 @@ const T = {
     price_cur: "650 ₴", price_early: "550 ₴",
     buy_btn: "Оплатити", enter_data: "Введи дані",
     inp_inst: "Твій Instagram", inp_tg: "Твій Telegram",
-    faq_title: "Інфо", faq_text: "Обирай 'Standard' для поточного місяця. 'Early Bird' — це попередній запис на наступні місяці зі знижкою.",
+    faq_title: "Що це таке?", faq_text: "Обирай 'Standard' для поточного місяця або 'Early Bird' для запису на майбутні зі знижкою!",
     add_news: "Додати новину", news_title: "Заголовок (макс 50)", news_body: "Текст (макс 200)",
     pub: "Опублікувати", del: "Видалити"
   },
@@ -50,7 +50,7 @@ const T = {
     price_cur: "650 ₴", price_early: "550 ₴",
     buy_btn: "Pay Now", enter_data: "Enter details",
     inp_inst: "Your Instagram", inp_tg: "Your Telegram",
-    faq_title: "Info", faq_text: "Choose 'Standard' for current month. 'Early Bird' is a pre-order for future months with discount.",
+    faq_title: "What is this?", faq_text: "Choose 'Standard' for current month or 'Early Bird' for future months with discount!",
     add_news: "Add News", news_title: "Title (max 50)", news_body: "Body (max 200)",
     pub: "Publish", del: "Delete"
   }
@@ -197,7 +197,7 @@ function App() {
                   <h2>{t('m_title')}</h2><p>{t('m_sub')}</p>
                 </motion.div>
                 
-                <div className="glass-card" style={{position:'relative', paddingBottom: 30}}>
+                <div className="glass-card marathon-card">
                   <motion.div className="faq-btn" whileTap={{scale:0.9}} onClick={()=>setShowFaq(!showFaq)}><HelpCircle size={18}/></motion.div>
                   
                   {/* FAQ Всплывашка */}
@@ -264,7 +264,9 @@ function App() {
                   <div className="page-nav-title">{t('prof')}</div><div></div>
                 </div>
                 <div className="scroll-content">
-                  <img src={user?.photo_url} className="avatar-big" />
+                  <div className="avatar-section">
+                     {user?.photo_url ? <img src={user.photo_url} className="avatar-big"/> : <User size={50}/>}
+                  </div>
                   <h2 className="user-name">{user?.first_name}</h2>
                   <p className="user-handle">@{user?.username}</p>
                   <motion.div className="id-chip" onClick={copyId} whileTap={{scale:0.95}}><ShieldCheck size={16}/> ID: {user?.id} {copied && "✓"}</motion.div>
