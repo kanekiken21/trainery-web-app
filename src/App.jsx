@@ -19,7 +19,6 @@ const NEWS_THEMES = [
   { bg: 'linear-gradient(135deg, #333 0%, #000 100%)', text: '#fff' }
 ];
 
-// КАТЕГОРИИ МЕНЮ (Иконки и Цвета можно менять)
 const MENU_CATEGORIES = [
   { id: 'fatloss', label: '🔥 Схуднення' },
   { id: 'muscle', label: '💪 Набір маси' },
@@ -33,7 +32,6 @@ const T = {
     m_title: "Марафони", m_sub: "Шлях до мети",
     h_title: "Здоров'я", h_sub: "Твій контроль",
     empty_news: "Тут поки тихо...", empty_sub: "Скоро будуть новини 🔥",
-    m_closed: "Запис закрито", m_wait: "Чекай на анонси!",
     prof: "Профіль", set: "Налаштування", adm: "Адмін",
     theme: "Темна тема", lang: "English",
     insta: "Instagram", tg_bot: "Канал Trainery", tg_mom: "Канал Juls",
@@ -45,7 +43,6 @@ const T = {
     faq_title: "Що це таке?", faq_text: "Обирай 'Standard' для поточного місяця або 'Early Bird' для запису на майбутні зі знижкою!",
     add_news: "Додати новину", news_title: "Заголовок (макс 50)", news_body: "Текст (макс 200)",
     pub: "Опублікувати", del: "Видалити",
-    // MENU
     menu_buy: "Купити", menu_empty: "Меню ще не готове", menu_soon: "Слідкуй за оновленнями!",
     manage_menu: "Додати Меню", menu_desc: "Опис меню", menu_price: "Ціна", upload_pdf: "Завантажити PDF",
     collection: "Моя колекція", purchased: "Придбано", open_pdf: "Відкрити PDF",
@@ -56,7 +53,6 @@ const T = {
     m_title: "Programs", m_sub: "Path to goal",
     h_title: "Health", h_sub: "Your control",
     empty_news: "Quiet here...", empty_sub: "News coming soon 🔥",
-    m_closed: "Closed now", m_wait: "Wait for announcements!",
     prof: "Profile", set: "Settings", adm: "Admin",
     theme: "Dark Mode", lang: "Ukrainian",
     insta: "Instagram", tg_bot: "Trainery Channel", tg_mom: "Juls Channel",
@@ -68,7 +64,6 @@ const T = {
     faq_title: "What is this?", faq_text: "Choose 'Standard' for current month or 'Early Bird' for future months with discount!",
     add_news: "Add News", news_title: "Title (max 50)", news_body: "Body (max 200)",
     pub: "Publish", del: "Delete",
-    // MENU
     menu_buy: "Buy", menu_empty: "Menu not ready yet", menu_soon: "Stay tuned!",
     manage_menu: "Add Menu", menu_desc: "Menu Description", menu_price: "Price", upload_pdf: "Upload PDF",
     collection: "My Collection", purchased: "Purchased", open_pdf: "Open PDF",
@@ -83,9 +78,7 @@ function App() {
   const [lang, setLangState] = useState(() => localStorage.getItem('app_lang') || 'uk');
   const [theme, setThemeState] = useState(() => localStorage.getItem('app_theme') || 'light');
   
-  // ДАННЫЕ
   const [news, setNews] = useState(() => JSON.parse(localStorage.getItem('app_news') || '[]'));
-  // МЕНЮ ТЕПЕРЬ МАССИВ
   const [menus, setMenus] = useState(() => JSON.parse(localStorage.getItem('app_menus') || '[]'));
   const [myCollection, setMyCollection] = useState(() => JSON.parse(localStorage.getItem('app_collection') || '[]'));
 
@@ -94,19 +87,17 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [imgErr, setImgErr] = useState(false);
 
-  // UI STATES
   const [selectedMonth, setSelectedMonth] = useState(0); 
   const [formData, setFormData] = useState({ insta: '', tg: '' });
   const [viewArticle, setViewArticle] = useState(null);
   const [showFaq, setShowFaq] = useState(false);
+  const [viewMenu, setViewMenu] = useState(false);
   const [viewCollection, setViewCollection] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
-  // КАТЕГОРИИ МЕНЮ
   const [activeCategory, setActiveCategory] = useState('fatloss');
-  const [selectedMenu, setSelectedMenu] = useState(null); // Для просмотра детального меню
+  const [selectedMenu, setSelectedMenu] = useState(null);
 
-  // ADMIN STATES
   const [adminTab, setAdminTab] = useState('news');
   const [newArticle, setNewArticle] = useState({ title: '', body: '', themeIdx: 0 });
   const [newMenu, setNewMenu] = useState({ title: '', desc: '', price: '', cat: 'fatloss' });
@@ -204,7 +195,6 @@ function App() {
       <div className="noise-overlay"></div>
       <div className="ambient-bg"></div>
 
-      {/* ЗАГРУЗКА ВЕРНУЛАСЬ */}
       <AnimatePresence>
         {loading && (
           <motion.div className="loading-screen" exit={{ opacity: 0 }}>
@@ -290,70 +280,23 @@ function App() {
               <motion.div key="health" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}><h2>{t('h_title')}</h2><p>{t('h_sub')}</p></motion.div>
                 <motion.div variants={itemVars}>
-                  <motion.div className="health-banner" whileTap={{scale:0.98}} style={{background:'linear-gradient(135deg, #FF9966, #FF5E62)'}}>
+                  <motion.div className="health-banner" whileTap={{scale:0.95}} style={{background:'linear-gradient(135deg, #FF9966, #FF5E62)'}}>
                     <div className="banner-anim-container"><div className="banner-decor bd-1"></div></div><div className="health-text"><h3>{t('cal')}</h3></div><div className="health-icon-anim"><Flame size={32}/></div>
                   </motion.div>
-                  <motion.div className="health-banner" whileTap={{scale:0.98}} style={{background:'linear-gradient(135deg, #F6D365, #FDA085)'}}>
+                  <motion.div className="health-banner" whileTap={{scale:0.95}} style={{background:'linear-gradient(135deg, #F6D365, #FDA085)'}}>
                     <div className="banner-anim-container"><div className="banner-decor bd-2"></div></div><div className="health-text"><h3>{t('cyc')}</h3></div><div className="health-icon-anim"><CalendarHeart size={32}/></div>
                   </motion.div>
-                  <motion.div className="health-banner" whileTap={{scale:0.98}} style={{background:'linear-gradient(135deg, #a18cd1, #fbc2eb)'}}>
+                  <motion.div className="health-banner" whileTap={{scale:0.95}} style={{background:'linear-gradient(135deg, #a18cd1, #fbc2eb)'}}>
                     <div className="banner-anim-container"><div className="banner-decor bd-1" style={{left:-20}}></div></div><div className="health-text"><h3>{t('bod')}</h3></div><div className="health-icon-anim"><Scale size={32}/></div>
                   </motion.div>
-
-                  {/* СЕКЦИЯ МЕНЮ С КАТЕГОРИЯМИ */}
-                  <h3 style={{marginLeft:10, marginTop:20, marginBottom:10}}>{t('menu')}</h3>
-                  <div className="category-scroll">
-                    {MENU_CATEGORIES.map(cat => (
-                      <div key={cat.id} className={`category-chip ${activeCategory === cat.id ? 'active' : ''}`} onClick={()=>setActiveCategory(cat.id)}>
-                        {cat.label}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {filteredMenus.length > 0 ? (
-                    <div className="menu-carousel">
-                      {filteredMenus.map(m => (
-                        <motion.div key={m.id} className="menu-card-swipe" whileTap={{scale:0.95}} onClick={() => setSelectedMenu(m)}>
-                          <div className="icon-glow-container" style={{width:80, height:80, marginBottom:15}}><Utensils size={30}/></div>
-                          <div style={{fontWeight:800, fontSize:18, lineHeight:1.2}}>{m.title}</div>
-                          <div className="menu-price-tag">{m.price} ₴</div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="glass-card" style={{minHeight:200, marginTop:10}}>
-                      <div className="icon-glow-container" style={{background:'var(--text-sec)', opacity:0.3}}><Lock size={40}/></div>
-                      <h3>{t('menu_empty')}</h3><p>{t('menu_soon')}</p>
-                    </div>
-                  )}
-
+                  {/* КНОПКА МЕНЮ ВЕРНУЛАСЬ */}
+                  <motion.div className="health-banner" whileTap={{scale:0.95}} onClick={()=>setViewMenu(true)} style={{background:'linear-gradient(135deg, #36D1DC, #5B86E5)'}}>
+                    <div className="banner-anim-container"><div className="banner-decor bd-2" style={{top:-20}}></div></div><div className="health-text"><h3>{t('menu')}</h3></div><div className="health-icon-anim"><Utensils size={32}/></div>
+                  </motion.div>
                 </motion.div>
               </motion.div>
             )}
 
-            {/* ДЕТАЛЬНОЕ МЕНЮ (ПОКУПКА) */}
-            {selectedMenu && (
-              <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
-                <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" onClick={()=>setSelectedMenu(null)}><X size={24}/></motion.div>
-                  <div className="page-nav-title">{t('menu')}</div><div></div>
-                </div>
-                <div className="scroll-content">
-                    <div className="glass-card" style={{width:'100%', minHeight:300}}>
-                      <div className="icon-glow-container"><Utensils size={50}/></div>
-                      <h3>{selectedMenu.title}</h3>
-                      <p style={{whiteSpace:'pre-wrap'}}>{selectedMenu.desc}</p>
-                    </div>
-                    {!isPurchased(selectedMenu.id) ? (
-                      <motion.button whileTap={{scale:0.95}} className="action-btn" onClick={buyMenu}><CreditCard size={20}/> {t('menu_buy')} — {selectedMenu.price} ₴</motion.button>
-                    ) : (
-                      <div className="action-btn" style={{background:'green', color:'white'}}><Check size={20}/> {t('purchased')}</div>
-                    )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* ПРОФИЛЬ */}
             {activeTab === 'profile' && (
               <motion.div key="profile" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
                 <div className="page-nav-header">
@@ -378,7 +321,7 @@ function App() {
               </motion.div>
             )}
 
-            {/* МОЯ КОЛЛЕКЦИЯ */}
+            {/* --- МОЯ КОЛЛЕКЦИЯ (КРАСИВАЯ) --- */}
             {viewCollection && (
               <motion.div className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:210}}>
                 <div className="page-nav-header">
@@ -410,33 +353,7 @@ function App() {
               </motion.div>
             )}
 
-            {/* НАСТРОЙКИ */}
-            {activeTab === 'settings' && (
-              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
-                <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div>
-                  <div className="page-nav-title">{t('set')}</div><div></div>
-                </div>
-                <div className="scroll-content">
-                  <div className="settings-grid">
-                    <motion.div className="grid-item" whileTap={{scale:0.95}} onClick={toggleTheme}>
-                      {theme==='light'?<Moon size={32}/>:<Sun size={32}/>} {t('theme')}
-                    </motion.div>
-                    <motion.div className="grid-item" whileTap={{scale:0.95}} onClick={()=>setLang(lang==='uk'?'en':'uk')}>
-                      <Globe size={32}/> {lang.toUpperCase()}
-                    </motion.div>
-                  </div>
-                  <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4>
-                  <div className="menu-stack">
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery_community', true)}><Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/julschannelua', true)}><Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* АДМИНКА */}
+            {/* АДМИНКА (РОВНАЯ) */}
             {activeTab === 'admin' && (
               <motion.div key="admin" className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}}>
                 <div className="page-nav-header">
@@ -453,9 +370,7 @@ function App() {
                     <>
                       <div className="admin-card">
                         <div className="admin-header"><h3>{t('add_news')}</h3></div>
-                        <div className="color-picker">
-                          {NEWS_THEMES.map((th, i) => <motion.div key={i} whileTap={{scale:0.9}} className={`color-btn ${newArticle.themeIdx===i?'active':''}`} style={{background:th.bg}} onClick={()=>setNewArticle({...newArticle, themeIdx:i})}/>)}
-                        </div>
+                        <div className="color-picker">{NEWS_THEMES.map((th, i) => <motion.div key={i} whileTap={{scale:0.9}} className={`color-btn ${newArticle.themeIdx===i?'active':''}`} style={{background:th.bg}} onClick={()=>setNewArticle({...newArticle, themeIdx:i})}/>)}</div>
                         <div className="input-group"><input className="custom-input" placeholder={t('news_title')} value={newArticle.title} onChange={e=>setNewArticle({...newArticle, title:e.target.value})} maxLength={50}/></div>
                         <div className="input-group"><textarea className="custom-input" rows={4} placeholder={t('news_body')} value={newArticle.body} onChange={e=>setNewArticle({...newArticle, body:e.target.value})} maxLength={200}/></div>
                         <motion.button whileTap={{scale:0.95}} className="action-btn" onClick={addNews}><Plus size={20}/> {t('pub')}</motion.button>
@@ -484,6 +399,94 @@ function App() {
                       ))}
                     </div>
                   )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ПРОСМОТР МЕНЮ (СВАЙП + КАТЕГОРИИ) */}
+            {viewMenu && (
+              <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
+                <div className="page-nav-header">
+                  <motion.div className="back-btn-circle" onClick={()=>setViewMenu(false)}><X size={24}/></motion.div>
+                  <div className="page-nav-title">{t('menu')}</div><div></div>
+                </div>
+                <div className="scroll-content">
+                  
+                  {/* КАТЕГОРИИ */}
+                  <div className="category-scroll">
+                    {MENU_CATEGORIES.map(cat => (
+                      <div key={cat.id} className={`category-chip ${activeCategory === cat.id ? 'active' : ''}`} onClick={()=>setActiveCategory(cat.id)}>
+                        {cat.label}
+                      </div>
+                    ))}
+                  </div>
+
+                  {filteredMenus.length > 0 ? (
+                    <div className="menu-carousel">
+                      {filteredMenus.map(m => (
+                        <motion.div key={m.id} className="menu-card-swipe" whileTap={{scale:0.95}} onClick={() => setSelectedMenu(m)}>
+                          <div className="icon-glow-container" style={{width:80, height:80, marginBottom:15}}><Utensils size={30}/></div>
+                          <div style={{fontWeight:800, fontSize:18, lineHeight:1.2}}>{m.title}</div>
+                          <div className="menu-price-tag">{m.price} ₴</div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="glass-card" style={{width:'100%', minHeight:200, marginTop:10}}>
+                      <div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={40}/></div>
+                      <h3>{t('menu_empty')}</h3><p>{t('menu_soon')}</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ДЕТАЛЬНОЕ МЕНЮ */}
+            {selectedMenu && (
+              <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:310}}>
+                <div className="page-nav-header">
+                  <motion.div className="back-btn-circle" onClick={()=>setSelectedMenu(null)}><X size={24}/></motion.div>
+                  <div className="page-nav-title">{t('menu')}</div><div></div>
+                </div>
+                <div className="scroll-content">
+                    <div className="glass-card" style={{width:'100%', minHeight:300}}>
+                      <div className="icon-glow-container"><Utensils size={50}/></div>
+                      <h3>{selectedMenu.title}</h3>
+                      <p style={{whiteSpace:'pre-wrap'}}>{selectedMenu.desc}</p>
+                    </div>
+                    {!isPurchased(selectedMenu.id) ? (
+                      <motion.button whileTap={{scale:0.95}} className="action-btn" onClick={buyMenu}><CreditCard size={20}/> {t('menu_buy')} — {selectedMenu.price} ₴</motion.button>
+                    ) : (
+                      <div className="action-btn" style={{background:'green', color:'white'}}><Check size={20}/> {t('purchased')}</div>
+                    )}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'settings' && (
+              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
+                <div className="page-nav-header">
+                  <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div>
+                  <div className="page-nav-title">{t('set')}</div><div></div>
+                </div>
+                <div className="scroll-content">
+                  <div className="menu-stack" style={{marginBottom: 30}}>
+                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={toggleTheme}>
+                       {theme==='light'?<Moon size={24}/>:<Sun size={24}/>}
+                       <span style={{flex:1, textAlign:'left'}}>{t('theme')}</span>
+                     </motion.div>
+                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setLang(lang==='uk'?'en':'uk')}>
+                       <Globe size={24}/>
+                       <span style={{flex:1, textAlign:'left'}}>{t('lang')}</span>
+                       <span style={{opacity:0.6, fontWeight: 800}}>{lang.toUpperCase()}</span>
+                     </motion.div>
+                  </div>
+                  <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4>
+                  <div className="menu-stack">
+                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
+                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery_community', true)}><Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
+                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/julschannelua', true)}><Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
+                  </div>
                 </div>
               </motion.div>
             )}
