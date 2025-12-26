@@ -10,12 +10,12 @@
   --grad-primary: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
   --grad-glow: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
   
-  --island-bg: rgba(255, 255, 255, 0.85);
+  --island-bg: rgba(255, 255, 255, 0.9);
   --border: rgba(0, 0, 0, 0.06);
   --radius: 32px;
 
   --safe-top: max(env(safe-area-inset-top), 25px);
-  --header-height: 64px;
+  --header-height: 70px;
   --nav-height: 85px;
 }
 
@@ -29,7 +29,7 @@
   --grad-primary: linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%);
   --grad-glow: radial-gradient(circle, rgba(167, 139, 250, 0.5) 0%, transparent 70%);
 
-  --island-bg: rgba(30, 30, 32, 0.85);
+  --island-bg: rgba(30, 30, 32, 0.9);
   --border: rgba(255, 255, 255, 0.12);
 }
 
@@ -45,7 +45,6 @@ html, body, #root {
 
 .app-container { height: 100%; width: 100%; position: relative; z-index: 1; }
 
-/* ШУМ И ФОН */
 .noise-overlay {
   position: fixed; inset: 0; pointer-events: none; z-index: 999; opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -55,26 +54,37 @@ html, body, #root {
   background: radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15), transparent 50%), radial-gradient(circle at 100% 100%, rgba(244, 114, 182, 0.15), transparent 50%);
 }
 
-/* --- ХЕДЕР --- */
+/* --- ХЕДЕР (ИСПРАВЛЕННЫЙ - МЯГКИЙ БЛЮР) --- */
 .fixed-header {
   position: absolute; top: 0; left: 0; right: 0;
-  padding: var(--safe-top) 24px 10px; 
-  height: calc(var(--header-height) + var(--safe-top));
+  /* Увеличиваем высоту контейнера, чтобы маска сработала мягко */
+  height: calc(var(--header-height) + var(--safe-top) + 20px); 
+  padding: var(--safe-top) 24px 30px; 
+  
   display: grid; grid-template-columns: 48px 1fr 48px; align-items: center;
   z-index: 50;
-  background: rgba(var(--bg), 0.01); 
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  
+  /* Фон более прозрачный */
+  background: var(--bg); /* Используем цвет фона, чтобы перекрыть контент */
+  background: rgba(var(--bg), 0.7); /* Полупрозрачность */
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  
+  /* МАГИЯ: Маска делает низ хедера прозрачным, убирая резкую линию */
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  
+  /* Убираем бордер, он создает линию */
+  border-bottom: none;
+}
+
+/* В темной теме фон чуть плотнее */
+[data-theme="dark"] .fixed-header {
+  background: rgba(5, 5, 5, 0.8);
 }
 
 .header-center { display: flex; align-items: center; justify-content: center; gap: 12px; }
-
-/* ЛОГОТИП: ФИКС ДЛЯ ТЕМНОЙ ТЕМЫ */
-.app-logo { width: 34px; height: 34px; object-fit: contain; transition: filter 0.3s; }
-
-/* В темной теме логотип становится полностью БЕЛЫМ */
-[data-theme="dark"] .app-logo { 
-  filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); 
-}
+.app-logo { width: 34px; height: 34px; object-fit: contain; }
+[data-theme="dark"] .app-logo { filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); }
 
 .header-title { 
   font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin: 0;
@@ -92,6 +102,7 @@ html, body, #root {
 /* --- КОНТЕНТ --- */
 .page-wrapper {
   position: absolute; inset: 0;
+  /* Отступ сверху чуть больше из-за маски */
   padding-top: calc(var(--header-height) + var(--safe-top));
   padding-bottom: var(--nav-height);
   overflow-y: auto; scrollbar-width: none;
@@ -102,7 +113,6 @@ html, body, #root {
 .section-header h2 { font-size: 36px; font-weight: 800; margin: 0; line-height: 1.1; letter-spacing: -1px; }
 .section-header p { font-size: 17px; color: var(--text-sec); margin: 8px 0 0; font-weight: 500; }
 
-/* ГЛАВНЫЕ КАРТОЧКИ */
 .glass-card {
   background: var(--card); border: 1px solid var(--border);
   border-radius: 36px; padding: 40px 25px;
@@ -119,7 +129,6 @@ html, body, #root {
   margin-bottom: 25px; color: white;
   box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
   position: relative;
-  /* Легкая пульсация иконки */
   animation: pulse-soft 3s infinite ease-in-out;
 }
 @keyframes pulse-soft { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
@@ -128,35 +137,51 @@ html, body, #root {
 .glass-card h3 { font-size: 24px; font-weight: 800; margin: 0 0 8px; }
 .glass-card p { font-size: 16px; color: var(--text-sec); opacity: 0.8; }
 
-/* --- БАННЕРЫ ЗДОРОВЬЯ (С АНИМАЦИЕЙ) --- */
+/* --- БАННЕРЫ ЗДОРОВЬЯ (ЖИВЫЕ) --- */
 .health-banner {
   display: flex; justify-content: space-between; align-items: center;
   padding: 30px; border-radius: 36px; margin-bottom: 15px;
   color: white; position: relative; overflow: hidden;
   box-shadow: 0 15px 30px -5px rgba(0,0,0,0.15); min-height: 120px;
-  /* Анимация появления */
+  /* Анимация появления при загрузке */
   animation: fade-in-up 0.6s ease-out backwards;
 }
 .health-banner:nth-child(1) { animation-delay: 0.1s; }
 .health-banner:nth-child(2) { animation-delay: 0.2s; }
 .health-banner:nth-child(3) { animation-delay: 0.3s; }
+.health-banner:nth-child(4) { animation-delay: 0.4s; }
 
 @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-.health-text { position: relative; z-index: 2; width: 100%; text-align: center; } /* Центруем текст */
+.health-text { position: relative; z-index: 2; }
 .health-text h3 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
 
-/* Анимация внутри баннеров (Плавные пузыри) */
+/* Анимация иконок */
+.health-icon-anim {
+  font-size: 32px; position: relative; z-index: 2;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  /* Покачивание иконки */
+  animation: icon-sway 3s ease-in-out infinite;
+}
+@keyframes icon-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+
+/* ЖИВЫЕ ДЕКОРАЦИИ ВНУТРИ БАННЕРА */
 .banner-anim-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .banner-decor {
   position: absolute; border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-  animation: breathe 4s infinite ease-in-out;
+  background: rgba(255,255,255,0.2);
+  /* Двойная анимация: дыхание + движение */
+  animation: liquid-move 6s infinite ease-in-out;
 }
-.bd-1 { width: 150px; height: 150px; top: -40px; right: -40px; filter: blur(20px); }
-.bd-2 { width: 120px; height: 120px; bottom: -30px; left: -30px; filter: blur(25px); animation-delay: 1.5s; }
+.bd-1 { width: 160px; height: 160px; top: -50px; right: -50px; filter: blur(25px); }
+.bd-2 { width: 120px; height: 120px; bottom: -40px; left: -20px; filter: blur(30px); animation-delay: -2s; }
 
-@keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 0.3; } }
+@keyframes liquid-move { 
+  0% { transform: translate(0, 0) scale(1); } 
+  33% { transform: translate(10px, 10px) scale(1.1); } 
+  66% { transform: translate(-10px, 5px) scale(0.9); } 
+  100% { transform: translate(0, 0) scale(1); } 
+}
 
 /* --- ЭКРАНЫ (FULLSCREEN) --- */
 .fullscreen-page { position: fixed; inset: 0; z-index: 200; background: var(--bg); display: flex; flex-direction: column; }
@@ -201,7 +226,6 @@ html, body, #root {
 
 /* ЗАГРУЗКА */
 .loading-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
-/* Логотип в загрузке тоже белеет в темноте */
 .loading-logo-img { width: 100px; height: 100px; object-fit: contain; }
 [data-theme="dark"] .loading-logo-img { filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
 
