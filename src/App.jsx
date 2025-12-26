@@ -5,16 +5,9 @@ import './App.css';
 
 const ADMIN_ID = 8297304095;
 
-// АНИМАЦИИ
 const spring = { type: "spring", stiffness: 300, damping: 25 };
-const containerVars = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-};
-const itemVars = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: spring }
-};
+const containerVars = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+const itemVars = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: spring } };
 
 const T = {
   uk: {
@@ -47,16 +40,31 @@ function App() {
   const [lang, setLang] = useState('uk');
   const [theme, setTheme] = useState('light');
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0); // Состояние для прогресс-бара
   const [copied, setCopied] = useState(false);
+  const [imgErr, setImgErr] = useState(false);
 
   const t = (key) => T[lang][key];
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1500);
+    // Логика загрузки с прогресс-баром
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setLoading(false), 500);
+          return 100;
+        }
+        return prev + 5; // Скорость загрузки
+      });
+    }, 50);
+
     const tg = window.Telegram.WebApp;
     tg.ready(); tg.expand();
     setUser(tg.initDataUnsafe?.user || { first_name: 'User', username: 'user', id: 8297304095 });
     document.documentElement.setAttribute('data-theme', 'light');
+
+    return () => clearInterval(interval);
   }, []);
 
   const toggleTheme = () => {
@@ -83,25 +91,30 @@ function App() {
       <div className="noise-overlay"></div>
       <div className="ambient-bg"></div>
 
+      {/* ЭКРАН ЗАГРУЗКИ С ЛОГО И ПОЛОСОЙ */}
       <AnimatePresence>
         {loading && (
           <motion.div className="loading-screen" exit={{ opacity: 0 }}>
-             <Zap size={60} color="#8B5CF6"/>
+             {!imgErr ? <img src="1.png" className="loading-logo-img" onError={()=>setImgErr(true)}/> : <Zap size={80} color="#8B5CF6"/>}
+             <div className="progress-container">
+               <div className="progress-bar" style={{width: `${progress}%`}}></div>
+             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       <div className="app-container">
         
-        {/* ХЕДЕР (Только на главных) */}
         {['home', 'marathons', 'health'].includes(activeTab) && (
           <header className="fixed-header">
-            <Zap size={28} color="var(--accent)"/>
+            <div></div>
             <div className="header-center">
+              {/* Вернули логотип 1.png */}
+              {!imgErr ? <img src="1.png" className="app-logo" onError={()=>setImgErr(true)}/> : <Zap color="#8B5CF6"/>}
               <span className="header-title">Trainery</span>
             </div>
             <motion.div className="profile-btn" whileTap={{scale:0.9}} onClick={() => setActiveTab('profile')}>
-              {user?.photo_url ? <img src={user.photo_url}/> : <User size={20}/>}
+              {user?.photo_url ? <img src={user.photo_url}/> : <User size={22}/>}
             </motion.div>
           </header>
         )}
@@ -109,7 +122,6 @@ function App() {
         <div className="content-area">
           <AnimatePresence mode="wait">
             
-            {/* ГЛАВНАЯ */}
             {activeTab === 'home' && (
               <motion.div key="home" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}>
@@ -117,13 +129,12 @@ function App() {
                   <p>{t('sub')}</p>
                 </motion.div>
                 <motion.div className="glass-card" variants={itemVars}>
-                  <div className="icon-glow-container"><Sparkles size={50}/></div>
+                  <div className="icon-glow-container"><Sparkles size={55}/></div>
                   <h3>{t('empty_news')}</h3><p>{t('empty_sub')}</p>
                 </motion.div>
               </motion.div>
             )}
 
-            {/* МАРАФОНЫ */}
             {activeTab === 'marathons' && (
               <motion.div key="marathons" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}>
@@ -131,13 +142,13 @@ function App() {
                   <p>{t('m_sub')}</p>
                 </motion.div>
                 <motion.div className="glass-card" variants={itemVars}>
-                  <div className="icon-glow-container" style={{background: 'linear-gradient(135deg, #F59E0B, #D97706)'}}><Dumbbell size={50}/></div>
+                  <div className="icon-glow-container" style={{background: 'linear-gradient(135deg, #F59E0B, #D97706)', boxShadow: '0 10px 30px rgba(217, 119, 6, 0.4)'}}><Dumbbell size={55}/></div>
                   <h3>{t('m_closed')}</h3><p>{t('m_wait')}</p>
                 </motion.div>
               </motion.div>
             )}
 
-            {/* ЗДОРОВЬЕ */}
+            {/* ОБНОВЛЕННЫЕ БАННЕРЫ ЗДОРОВЬЯ */}
             {activeTab === 'health' && (
               <motion.div key="health" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}>
@@ -145,24 +156,26 @@ function App() {
                   <p>{t('h_sub')}</p>
                 </motion.div>
                 <motion.div variants={itemVars}>
-                  <div className="health-row" style={{background:'linear-gradient(135deg, #FF9966, #FF5E62)'}}>
-                    <div><h3>{t('cal')}</h3><p>Kcal</p></div><Utensils size={32}/><div className="decor-blur"></div>
-                  </div>
-                  <div className="health-row" style={{background:'linear-gradient(135deg, #F6D365, #FDA085)'}}>
-                    <div><h3>{t('cyc')}</h3><p>28 days</p></div><CalendarHeart size={32}/><div className="decor-blur"></div>
-                  </div>
-                  <div className="health-row" style={{background:'linear-gradient(135deg, #a18cd1, #fbc2eb)'}}>
-                    <div><h3>{t('bod')}</h3><p>Kg / Cm</p></div><Scale size={32}/><div className="decor-blur"></div>
-                  </div>
+                  <motion.div className="health-banner" whileTap={{scale:0.98}} style={{background:'linear-gradient(135deg, #FF9966, #FF5E62)'}}>
+                    <div className="banner-anim-container"><div className="banner-decor bd-1"></div></div>
+                    <div className="health-text"><h3>{t('cal')}</h3></div><Utensils size={36}/>
+                  </motion.div>
+                  <motion.div className="health-banner" whileTap={{scale:0.98}} style={{background:'linear-gradient(135deg, #F6D365, #FDA085)'}}>
+                    <div className="banner-anim-container"><div className="banner-decor bd-2"></div></div>
+                    <div className="health-text"><h3>{t('cyc')}</h3></div><CalendarHeart size={36}/>
+                  </motion.div>
+                  <motion.div className="health-banner" whileTap={{scale:0.98}} style={{background:'linear-gradient(135deg, #a18cd1, #fbc2eb)'}}>
+                    <div className="banner-anim-container"><div className="banner-decor bd-1" style={{left:-20, top:'auto', bottom:-20}}></div></div>
+                    <div className="health-text"><h3>{t('bod')}</h3></div><Scale size={36}/>
+                  </motion.div>
                 </motion.div>
               </motion.div>
             )}
 
-            {/* ПРОФИЛЬ */}
             {activeTab === 'profile' && (
               <motion.div key="profile" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
                 <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('home')}><ArrowLeft size={22}/></motion.div>
+                  <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('home')}><ArrowLeft size={24}/></motion.div>
                   <div className="page-nav-title">{t('prof')}</div>
                   <div></div>
                 </div>
@@ -171,16 +184,16 @@ function App() {
                   <h2 className="user-name">{user?.first_name}</h2>
                   <p className="user-handle">@{user?.username}</p>
                   <motion.div className="id-chip" whileTap={{scale:0.95}} onClick={copyId}>
-                    <ShieldCheck size={14}/> ID: {user?.id} {copied && "✓"}
+                    <ShieldCheck size={16}/> ID: {user?.id} {copied && "✓"}
                   </motion.div>
 
                   <div className="menu-stack">
                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setActiveTab('settings')}>
-                      <Settings size={22}/> {t('set')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/>
+                      <Settings size={24}/> {t('set')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/>
                     </motion.div>
                     {user?.id === ADMIN_ID && 
                       <motion.div className="menu-row" whileTap={{scale:0.98}} style={{color: 'var(--accent)'}}>
-                        <Lock size={22}/> {t('adm')}
+                        <Lock size={24}/> {t('adm')}
                       </motion.div>
                     }
                   </div>
@@ -188,34 +201,33 @@ function App() {
               </motion.div>
             )}
 
-            {/* НАСТРОЙКИ */}
             {activeTab === 'settings' && (
               <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
                 <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={22}/></motion.div>
+                  <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div>
                   <div className="page-nav-title">{t('set')}</div>
                   <div></div>
                 </div>
                 <div className="scroll-content">
                   <div className="settings-grid">
                     <motion.div className="grid-item" whileTap={{scale:0.95}} onClick={toggleTheme}>
-                      {theme==='light'?<Moon size={28}/>:<Sun size={28}/>} {t('theme')}
+                      {theme==='light'?<Moon size={32}/>:<Sun size={32}/>} {t('theme')}
                     </motion.div>
                     <motion.div className="grid-item" whileTap={{scale:0.95}} onClick={()=>setLang(lang==='uk'?'en':'uk')}>
-                      <Globe size={28}/> {lang.toUpperCase()}
+                      <Globe size={32}/> {lang.toUpperCase()}
                     </motion.div>
                   </div>
 
-                  <h4 style={{width:'100%', opacity:0.5, marginBottom:10, paddingLeft:5}}>{t('socials')}</h4>
+                  <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4>
                   <div className="menu-stack">
                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://instagram.com', false)}>
-                      <Instagram size={22} color="#E1306C"/> {t('insta')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/>
+                      <Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/>
                     </motion.div>
                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery', true)}>
-                      <Users size={22} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/>
+                      <Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/>
                     </motion.div>
                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/juls', true)}>
-                      <Send size={22} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/>
+                      <Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/>
                     </motion.div>
                   </div>
                 </div>
@@ -228,9 +240,9 @@ function App() {
         {['home', 'marathons', 'health'].includes(activeTab) && (
           <div className="bottom-nav">
             <div className="nav-island">
-              <button onClick={()=>setActiveTab('home')} className={`nav-btn ${activeTab==='home'?'active':''}`}><Home size={24}/></button>
-              <button onClick={()=>setActiveTab('marathons')} className={`nav-btn ${activeTab==='marathons'?'active':''}`}><Zap size={24}/></button>
-              <button onClick={()=>setActiveTab('health')} className={`nav-btn ${activeTab==='health'?'active':''}`}><Activity size={24}/></button>
+              <button onClick={()=>setActiveTab('home')} className={`nav-btn ${activeTab==='home'?'active':''}`}><Home size={26}/></button>
+              <button onClick={()=>setActiveTab('marathons')} className={`nav-btn ${activeTab==='marathons'?'active':''}`}><Zap size={26}/></button>
+              <button onClick={()=>setActiveTab('health')} className={`nav-btn ${activeTab==='health'?'active':''}`}><Activity size={26}/></button>
             </div>
           </div>
         )}
