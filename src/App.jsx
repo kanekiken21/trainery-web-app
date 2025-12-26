@@ -19,10 +19,10 @@ const NEWS_THEMES = [
   { bg: 'linear-gradient(135deg, #333 0%, #000 100%)', text: '#fff' }
 ];
 
-// НОВЫЕ КАТЕГОРИИ ОТ МАМЫ
+// КАТЕГОРИИ (1400 / 1600)
 const MENU_CATEGORIES = [
-  { id: '1400', label: '1400 ККАЛ', color: '#FF9A44' }, // Оранжевый
-  { id: '1600', label: '1600 ККАЛ', color: '#10B981' }  // Зеленый
+  { id: '1400', label: '1400 ККАЛ', color: '#FF9A44' },
+  { id: '1600', label: '1600 ККАЛ', color: '#10B981' }
 ];
 
 const T = {
@@ -31,7 +31,6 @@ const T = {
     m_title: "Марафони", m_sub: "Шлях до мети",
     h_title: "Здоров'я", h_sub: "Твій контроль",
     empty_news: "Тут поки тихо...", empty_sub: "Скоро будуть новини 🔥",
-    m_closed: "Запис закрито", m_wait: "Чекай на анонси!",
     prof: "Профіль", set: "Налаштування", adm: "Адмін",
     theme: "Темна тема", lang: "English",
     insta: "Instagram", tg_bot: "Канал Trainery", tg_mom: "Канал Juls",
@@ -43,7 +42,6 @@ const T = {
     faq_title: "Що це таке?", faq_text: "Обирай 'Standard' для поточного місяця або 'Early Bird' для запису на майбутні зі знижкою!",
     add_news: "Додати новину", news_title: "Заголовок (макс 50)", news_body: "Текст (макс 200)",
     pub: "Опублікувати", del: "Видалити",
-    // MENU
     menu_buy: "Купити", menu_empty: "Меню ще не готове", menu_soon: "Слідкуй за оновленнями!",
     manage_menu: "Додати Меню", menu_desc: "Опис меню", menu_price: "Ціна", upload_pdf: "Завантажити PDF",
     collection: "Моя колекція", purchased: "Придбано", open_pdf: "Відкрити PDF",
@@ -66,7 +64,6 @@ const T = {
     faq_title: "What is this?", faq_text: "Choose 'Standard' for current month or 'Early Bird' for future months with discount!",
     add_news: "Add News", news_title: "Title (max 50)", news_body: "Body (max 200)",
     pub: "Publish", del: "Delete",
-    // MENU
     menu_buy: "Buy", menu_empty: "Menu not ready yet", menu_soon: "Stay tuned!",
     manage_menu: "Add Menu", menu_desc: "Menu Description", menu_price: "Price", upload_pdf: "Upload PDF",
     collection: "My Collection", purchased: "Purchased", open_pdf: "Open PDF",
@@ -97,8 +94,9 @@ function App() {
   const [viewMenu, setViewMenu] = useState(false);
   const [viewCollection, setViewCollection] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMenu, setSelectedMenu] = useState(null);
-
+  
+  const [activeCategory, setActiveCategory] = useState('1400');
+  
   const [adminTab, setAdminTab] = useState('news');
   const [newArticle, setNewArticle] = useState({ title: '', body: '', themeIdx: 0 });
   const [newMenu, setNewMenu] = useState({ title: '', desc: '', price: '', cat: '1400' });
@@ -146,17 +144,17 @@ function App() {
     localStorage.setItem('app_menus', JSON.stringify(updated));
   };
 
-  const buyMenu = () => {
-    if(!selectedMenu) return;
-    const updatedCollection = [...myCollection, selectedMenu];
+  const buyMenu = (m) => {
+    const updatedCollection = [...myCollection, m];
     setMyCollection(updatedCollection);
     localStorage.setItem('app_collection', JSON.stringify(updatedCollection));
-    setSelectedMenu(null);
+    setViewMenu(false);
     setViewCollection(true);
   };
 
   const isPurchased = (id) => myCollection.some(m => m.id === id);
   const filteredCollection = myCollection.filter(m => m.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredMenus = menus.filter(m => m.cat === activeCategory);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -208,7 +206,6 @@ function App() {
       </AnimatePresence>
 
       <div className="app-container">
-        
         {['home', 'marathons', 'health'].includes(activeTab) && (
           <header className="fixed-header">
             <div></div>
@@ -227,16 +224,12 @@ function App() {
             
             {activeTab === 'home' && (
               <motion.div key="home" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
-                <motion.div className="section-header" variants={itemVars}>
-                  <h2>{t('hello')}</h2><p>{t('sub')}</p>
-                </motion.div>
-                
+                <motion.div className="section-header" variants={itemVars}><h2>{t('hello')}</h2><p>{t('sub')}</p></motion.div>
                 {news.length > 0 ? (
                   <motion.div className="news-carousel" variants={itemVars}>
                     {news.map(item => (
                       <motion.div key={item.id} className="news-card" style={{background: item.bg, color: item.text}} whileTap={{scale:0.95}} onClick={() => setViewArticle(item)}>
-                        <div className="news-date">{item.date}</div>
-                        <div className="news-title">{item.title}</div>
+                        <div className="news-date">{item.date}</div><div className="news-title">{item.title}</div>
                       </motion.div>
                     ))}
                   </motion.div>
@@ -251,16 +244,10 @@ function App() {
 
             {activeTab === 'marathons' && (
               <motion.div key="marathons" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
-                <motion.div className="section-header" variants={itemVars}>
-                  <h2>{t('m_title')}</h2><p>{t('m_sub')}</p>
-                </motion.div>
-                
+                <motion.div className="section-header" variants={itemVars}><h2>{t('m_title')}</h2><p>{t('m_sub')}</p></motion.div>
                 <div className="glass-card marathon-card">
                   <motion.div className="faq-btn" whileTap={{scale:0.9}} onClick={()=>setShowFaq(!showFaq)}><HelpCircle size={18}/></motion.div>
-                  <AnimatePresence>
-                    {showFaq && <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} exit={{opacity:0}} className="faq-tooltip"><strong>{t('faq_title')}</strong><br/>{t('faq_text')}</motion.div>}
-                  </AnimatePresence>
-
+                  <AnimatePresence>{showFaq && <motion.div initial={{opacity:0, y:-10}} animate={{opacity:1, y:0}} exit={{opacity:0}} className="faq-tooltip"><strong>{t('faq_title')}</strong><br/>{t('faq_text')}</motion.div>}</AnimatePresence>
                   <div className="month-grid">
                     {getMarathonMonths().map((m) => (
                       <motion.div key={m.idx} className={`month-card ${selectedMonth === m.idx ? 'selected' : ''}`} onClick={() => setSelectedMonth(m.idx)} whileTap={{scale:0.95}}>
@@ -270,10 +257,9 @@ function App() {
                       </motion.div>
                     ))}
                   </div>
-
                   <h3 style={{marginBottom:15, marginTop:10}}>{t('enter_data')}</h3>
-                  <div className="input-group"><label className="input-label">{t('inp_inst')}</label><input className="custom-input" placeholder="@instagram" value={formData.insta} onChange={e=>setFormData({...formData, insta: e.target.value})}/></div>
-                  <div className="input-group"><label className="input-label">{t('inp_tg')}</label><input className="custom-input" placeholder="@telegram" value={formData.tg} onChange={e=>setFormData({...formData, tg: e.target.value})}/></div>
+                  <div className="input-group"><label className="input-label">{t('inp_inst')}</label><div className="input-with-icon"><Instagram size={18} className="input-icon"/><input className="custom-input has-icon" placeholder="@instagram" value={formData.insta} onChange={e=>setFormData({...formData, insta: e.target.value})}/></div></div>
+                  <div className="input-group"><label className="input-label">{t('inp_tg')}</label><div className="input-with-icon"><Send size={18} className="input-icon"/><input className="custom-input has-icon" placeholder="@telegram" value={formData.tg} onChange={e=>setFormData({...formData, tg: e.target.value})}/></div></div>
                   <motion.button whileTap={{scale:0.95}} className="action-btn"><CreditCard size={20}/> {t('buy_btn')} — {selectedMonth === 0 ? t('price_cur') : t('price_early')}</motion.button>
                 </div>
               </motion.div>
@@ -299,143 +285,7 @@ function App() {
               </motion.div>
             )}
 
-            {activeTab === 'profile' && (
-              <motion.div key="profile" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
-                <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('home')}><ArrowLeft size={24}/></motion.div>
-                  <div className="page-nav-title">{t('prof')}</div><div></div>
-                </div>
-                <div className="scroll-content">
-                  <div className="avatar-section">
-                     {user?.photo_url ? <img src={user.photo_url} className="avatar-big"/> : <User size={50}/>}
-                  </div>
-                  <h2 className="user-name">{user?.first_name}</h2>
-                  <p className="user-handle">@{user?.username}</p>
-                  <motion.div className="id-chip" onClick={copyId} whileTap={{scale:0.95}}><ShieldCheck size={16}/> ID: {user?.id} {copied && "✓"}</motion.div>
-                  <div className="menu-stack">
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setViewCollection(true)}>
-                      <BookOpen size={24} color="#FF9A44"/> {t('collection')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/>
-                    </motion.div>
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setActiveTab('settings')}><Settings size={24}/> {t('set')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                    {user?.id === ADMIN_ID && <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setActiveTab('admin')} style={{color: 'var(--accent)'}}><Lock size={24}/> {t('adm')}</motion.div>}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* --- МОЯ КОЛЛЕКЦИЯ --- */}
-            {viewCollection && (
-              <motion.div className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:210}}>
-                <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" onClick={()=>setViewCollection(false)}><ArrowLeft size={24}/></motion.div>
-                  <div className="page-nav-title">{t('collection')}</div><div></div>
-                </div>
-                <div className="scroll-content">
-                  <div className="input-group">
-                    <div className="input-with-icon">
-                      <Search size={20} className="input-icon" style={{position:'absolute', top:18, left:18}}/>
-                      <input className="custom-input" style={{paddingLeft:50}} placeholder={t('search')} value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}/>
-                    </div>
-                  </div>
-                  {filteredCollection.length > 0 ? filteredCollection.map((m, i) => (
-                    <motion.div key={i} className="collection-card" whileTap={{scale:0.98}}>
-                      <div style={{display:'flex', alignItems:'center', gap:12}}>
-                        <div style={{background:'rgba(255,255,255,0.2)', padding:10, borderRadius:12}}><Utensils size={24} color="white"/></div>
-                        <div><div style={{fontWeight:800, fontSize:18}}>{m.title}</div><div style={{fontSize:13, opacity:0.8}}>{m.price} UAH</div></div>
-                      </div>
-                      <div className="pdf-btn">{t('open_pdf')}</div>
-                    </motion.div>
-                  )) : (
-                    <div className="glass-card" style={{width:'100%', minHeight:200}}>
-                      <div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={40}/></div>
-                      <h3>{t('empty_coll')}</h3>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* НАСТРОЙКИ */}
-            {activeTab === 'settings' && (
-              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
-                <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div>
-                  <div className="page-nav-title">{t('set')}</div><div></div>
-                </div>
-                <div className="scroll-content">
-                  <div className="menu-stack" style={{marginBottom: 30}}>
-                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={toggleTheme}>
-                       {theme==='light'?<Moon size={24}/>:<Sun size={24}/>}
-                       <span style={{flex:1, textAlign:'left'}}>{t('theme')}</span>
-                     </motion.div>
-                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setLang(lang==='uk'?'en':'uk')}>
-                       <Globe size={24}/>
-                       <span style={{flex:1, textAlign:'left'}}>{t('lang')}</span>
-                       <span style={{opacity:0.6, fontWeight: 800}}>{lang.toUpperCase()}</span>
-                     </motion.div>
-                  </div>
-                  <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4>
-                  <div className="menu-stack">
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery_community', true)}><Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/julschannelua', true)}><Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* АДМИНКА */}
-            {activeTab === 'admin' && (
-              <motion.div key="admin" className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}}>
-                <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div>
-                  <div className="page-nav-title">{t('adm')}</div><div></div>
-                </div>
-                <div className="scroll-content">
-                  <div className="admin-tab-switch">
-                    <div className={`tab-btn ${adminTab==='news'?'active':''}`} onClick={()=>setAdminTab('news')}>Новини</div>
-                    <div className={`tab-btn ${adminTab==='menu'?'active':''}`} onClick={()=>setAdminTab('menu')}>Меню</div>
-                  </div>
-
-                  {adminTab === 'news' ? (
-                    <>
-                      <div className="admin-card">
-                        <div className="admin-header"><h3>{t('add_news')}</h3></div>
-                        <div className="color-picker">{NEWS_THEMES.map((th, i) => <motion.div key={i} whileTap={{scale:0.9}} className={`color-btn ${newArticle.themeIdx===i?'active':''}`} style={{background:th.bg}} onClick={()=>setNewArticle({...newArticle, themeIdx:i})}/>)}</div>
-                        <div className="input-group"><input className="custom-input" placeholder={t('news_title')} value={newArticle.title} onChange={e=>setNewArticle({...newArticle, title:e.target.value})} maxLength={50}/></div>
-                        <div className="input-group"><textarea className="custom-input" rows={4} placeholder={t('news_body')} value={newArticle.body} onChange={e=>setNewArticle({...newArticle, body:e.target.value})} maxLength={200}/></div>
-                        <motion.button whileTap={{scale:0.95}} className="action-btn" onClick={addNews}><Plus size={20}/> {t('pub')}</motion.button>
-                      </div>
-                      {news.map(n => (<div key={n.id} className="list-item-compact"><span>{n.title}</span><Trash2 size={20} color="red" onClick={()=>deleteNews(n.id)}/></div>))}
-                    </>
-                  ) : (
-                    <div className="admin-card">
-                      <div className="admin-header"><h3>{t('manage_menu')}</h3></div>
-                      {/* СЕТКА КАТЕГОРИЙ */}
-                      <div className="admin-cat-grid">
-                         {MENU_CATEGORIES.map(cat => (
-                           <div key={cat.id} className={`cat-select-btn ${newMenu.cat === cat.id ? 'active' : ''}`} onClick={()=>setNewMenu({...newMenu, cat: cat.id})}>{cat.label}</div>
-                         ))}
-                      </div>
-                      <div className="input-group"><input className="custom-input" placeholder="Назва меню" value={newMenu.title} onChange={e=>setNewMenu({...newMenu, title:e.target.value})}/></div>
-                      <div className="input-group"><textarea className="custom-input" placeholder={t('menu_desc')} value={newMenu.desc} onChange={e=>setNewMenu({...newMenu, desc:e.target.value})}/></div>
-                      <div className="input-group"><input className="custom-input" type="number" placeholder={t('menu_price')} value={newMenu.price} onChange={e=>setNewMenu({...newMenu, price:e.target.value})}/></div>
-                      <motion.button whileTap={{scale:0.95}} className="action-btn file-btn"><FileText size={20}/> {t('upload_pdf')}</motion.button>
-                      <motion.button whileTap={{scale:0.95}} className="action-btn" onClick={saveMenu}><Plus size={20}/> Зберегти меню</motion.button>
-
-                      {menus.map(m => (
-                        <div key={m.id} className="list-item-compact" style={{marginTop:10}}>
-                          <div><div style={{fontWeight:800}}>{m.title}</div><div style={{opacity:0.7, fontSize:12}}>{m.price} ₴ / {MENU_CATEGORIES.find(c=>c.id===m.cat)?.label}</div></div>
-                          <Trash2 size={20} color="red" onClick={()=>deleteMenu(m.id)}/>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* ПРОСМОТР МЕНЮ (СВАЙП + НЕОН) */}
+            {/* ПРОСМОТР МЕНЮ */}
             {viewMenu && (
               <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
                 <div className="page-nav-header">
@@ -443,25 +293,38 @@ function App() {
                   <div className="page-nav-title">{t('menu')}</div><div></div>
                 </div>
                 <div className="scroll-content">
-                  {/* ПРОСТО СВАЙП */}
-                  {menus.length > 0 ? (
-                    <div className="menu-carousel">
-                      {menus.map(m => {
-                        const cat = MENU_CATEGORIES.find(c => c.id === m.cat);
-                        return (
-                          <motion.div key={m.id} className="menu-card-swipe" whileTap={{scale:0.95}} onClick={() => setSelectedMenu(m)}>
-                            <div className="icon-glow-container" style={{width:80, height:80, marginBottom:10}}><Utensils size={30}/></div>
-                            <div style={{fontWeight:800, fontSize:18, lineHeight:1.2}}>{m.title}</div>
-                            {/* НЕОНОВАЯ НАДПИСЬ */}
-                            <div className="menu-cat-neon" style={{color: cat?.color || '#8B5CF6'}}>{cat?.label}</div>
-                            <div className="menu-price-tag">{m.price} ₴</div>
+                  <div className="category-switcher">
+                    {MENU_CATEGORIES.map(cat => (
+                      <div key={cat.id} className={`cat-btn ${activeCategory === cat.id ? 'active' : ''}`} onClick={()=>setActiveCategory(cat.id)}>{cat.label}</div>
+                    ))}
+                  </div>
+
+                  {filteredMenus.length > 0 ? (
+                    <>
+                      <div className="menu-slider-container">
+                        {filteredMenus.map(m => (
+                          <motion.div key={m.id} className="menu-card-large" whileTap={{scale:0.98}}>
+                            <div className="icon-glow-container"><Utensils size={50}/></div>
+                            <h2 style={{margin:'10px 0', fontSize:24, fontWeight:800}}>{m.title}</h2>
+                            <div className="menu-category-neon" style={{color: MENU_CATEGORIES.find(c=>c.id===m.cat)?.color}}>
+                              {MENU_CATEGORIES.find(c=>c.id===m.cat)?.label}
+                            </div>
+                            <p style={{opacity:0.7, marginBottom:20}}>{m.desc}</p>
+                            {!isPurchased(m.id) ? (
+                              <button className="menu-price-large" onClick={() => buyMenu(m)}>{t('menu_buy')} — {m.price} ₴</button>
+                            ) : (
+                              <div style={{background:'green', color:'white', padding:'10px 20px', borderRadius:16, fontWeight:700}}>✓ {t('purchased')}</div>
+                            )}
                           </motion.div>
-                        );
-                      })}
-                    </div>
+                        ))}
+                      </div>
+                      <div className="pagination-dots">
+                        {filteredMenus.map((_, i) => <div key={i} className={`dot ${i===0?'active':''}`}/>)}
+                      </div>
+                    </>
                   ) : (
-                    <div className="glass-card" style={{width:'100%', minHeight:200, marginTop:10}}>
-                      <div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={40}/></div>
+                    <div className="glass-card" style={{width:'100%', minHeight:300}}>
+                      <div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={50}/></div>
                       <h3>{t('menu_empty')}</h3><p>{t('menu_soon')}</p>
                     </div>
                   )}
@@ -469,41 +332,56 @@ function App() {
               </motion.div>
             )}
 
-            {/* ДЕТАЛЬНОЕ МЕНЮ */}
-            {selectedMenu && (
-              <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:310}}>
-                <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" onClick={()=>setSelectedMenu(null)}><X size={24}/></motion.div>
-                  <div className="page-nav-title">{t('menu')}</div><div></div>
-                </div>
+            {/* ПРОФИЛЬ, НАСТРОЙКИ, АДМИНКА, КОЛЛЕКЦИЯ (Остаются такими же) */}
+            {activeTab === 'profile' && (
+              <motion.div key="profile" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}}>
+                <div className="page-nav-header"><motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('home')}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('prof')}</div><div></div></div>
                 <div className="scroll-content">
-                    <div className="glass-card" style={{width:'100%', minHeight:300}}>
-                      <div className="icon-glow-container"><Utensils size={50}/></div>
-                      <h3>{selectedMenu.title}</h3>
-                      <p style={{whiteSpace:'pre-wrap'}}>{selectedMenu.desc}</p>
-                    </div>
-                    {!isPurchased(selectedMenu.id) ? (
-                      <motion.button whileTap={{scale:0.95}} className="action-btn" onClick={buyMenu}><CreditCard size={20}/> {t('menu_buy')} — {selectedMenu.price} ₴</motion.button>
-                    ) : (
-                      <div className="action-btn" style={{background:'green', color:'white'}}><Check size={20}/> {t('purchased')}</div>
-                    )}
+                  <div className="avatar-section">{user?.photo_url ? <img src={user.photo_url} className="avatar-big"/> : <User size={50}/>}</div><h2 className="user-name">{user?.first_name}</h2><p className="user-handle">@{user?.username}</p><motion.div className="id-chip" onClick={copyId} whileTap={{scale:0.95}}><ShieldCheck size={16}/> ID: {user?.id} {copied && "✓"}</motion.div>
+                  <div className="menu-stack"><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setViewCollection(true)}><BookOpen size={24} color="#FF9A44"/> {t('collection')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setActiveTab('settings')}><Settings size={24}/> {t('set')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>{user?.id === ADMIN_ID && <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setActiveTab('admin')} style={{color: 'var(--accent)'}}><Lock size={24}/> {t('adm')}</motion.div>}</div>
+                </div>
+              </motion.div>
+            )}
+
+            {viewCollection && (
+              <motion.div className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:210}}>
+                <div className="page-nav-header"><motion.div className="back-btn-circle" onClick={()=>setViewCollection(false)}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('collection')}</div><div></div></div>
+                <div className="scroll-content">
+                  <div className="input-group"><div className="input-with-icon"><Search size={20} className="input-icon" style={{position:'absolute', top:18, left:18}}/><input className="custom-input" style={{paddingLeft:50}} placeholder={t('search')} value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}/></div></div>
+                  {filteredCollection.length > 0 ? filteredCollection.map((m, i) => (
+                    <motion.div key={i} className="collection-card" whileTap={{scale:0.98}}><div style={{display:'flex', alignItems:'center', gap:12}}><div style={{background:'rgba(255,255,255,0.2)', padding:10, borderRadius:12}}><Utensils size={24} color="white"/></div><div><div style={{fontWeight:800, fontSize:18}}>{m.title}</div><div style={{fontSize:13, opacity:0.8}}>{m.price} UAH</div></div></div><div className="pdf-btn">{t('open_pdf')}</div></motion.div>
+                  )) : (
+                    <div className="glass-card" style={{width:'100%', minHeight:200}}><div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={40}/></div><h3>{t('empty_coll')}</h3></div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'settings' && (
+              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}}>
+                <div className="page-nav-header"><motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('set')}</div><div></div></div>
+                <div className="scroll-content"><div className="menu-stack" style={{marginBottom: 30}}><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={toggleTheme}>{theme==='light'?<Moon size={24}/>:<Sun size={24}/>}<span style={{flex:1, textAlign:'left'}}>{t('theme')}</span></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setLang(lang==='uk'?'en':'uk')}><Globe size={24}/><span style={{flex:1, textAlign:'left'}}>{t('lang')}</span><span style={{opacity:0.6, fontWeight: 800}}>{lang.toUpperCase()}</span></motion.div></div><h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4><div className="menu-stack"><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery_community', true)}><Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/julschannelua', true)}><Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div></div></div>
+              </motion.div>
+            )}
+
+            {activeTab === 'admin' && (
+              <motion.div key="admin" className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}}>
+                <div className="page-nav-header"><motion.div className="back-btn-circle" onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('adm')}</div><div></div></div>
+                <div className="scroll-content">
+                  <div className="admin-tab-switch"><div className={`tab-btn ${adminTab==='news'?'active':''}`} onClick={()=>setAdminTab('news')}>Новини</div><div className={`tab-btn ${adminTab==='menu'?'active':''}`} onClick={()=>setAdminTab('menu')}>Меню</div></div>
+                  {adminTab === 'news' ? (
+                    <><div className="admin-card"><div className="admin-header"><h3>{t('add_news')}</h3></div><div className="color-picker">{NEWS_THEMES.map((th, i) => <motion.div key={i} whileTap={{scale:0.9}} className={`color-btn ${newArticle.themeIdx===i?'active':''}`} style={{background:th.bg}} onClick={()=>setNewArticle({...newArticle, themeIdx:i})}/>)}</div><div className="input-group"><input className="custom-input" placeholder={t('news_title')} value={newArticle.title} onChange={e=>setNewArticle({...newArticle, title:e.target.value})} maxLength={50}/></div><div className="input-group"><textarea className="custom-input" rows={4} placeholder={t('news_body')} value={newArticle.body} onChange={e=>setNewArticle({...newArticle, body:e.target.value})} maxLength={200}/></div><motion.button whileTap={{scale:0.95}} className="action-btn" onClick={addNews}><Plus size={20}/> {t('pub')}</motion.button></div>{news.map(n => (<div key={n.id} className="list-item-compact"><span>{n.title}</span><Trash2 size={20} color="red" onClick={()=>deleteNews(n.id)}/></div>))}</>
+                  ) : (
+                    <div className="admin-card"><div className="admin-header"><h3>{t('manage_menu')}</h3></div><div className="admin-cat-grid">{MENU_CATEGORIES.map(cat => (<div key={cat.id} className={`cat-select-btn ${newMenu.cat === cat.id ? 'active' : ''}`} onClick={()=>setNewMenu({...newMenu, cat: cat.id})}>{cat.label}</div>))}</div><div className="input-group"><input className="custom-input" placeholder="Назва меню" value={newMenu.title} onChange={e=>setNewMenu({...newMenu, title:e.target.value})}/></div><div className="input-group"><textarea className="custom-input" placeholder={t('menu_desc')} value={newMenu.desc} onChange={e=>setNewMenu({...newMenu, desc:e.target.value})}/></div><div className="input-group"><input className="custom-input" type="number" placeholder={t('menu_price')} value={newMenu.price} onChange={e=>setNewMenu({...newMenu, price:e.target.value})}/></div><motion.button whileTap={{scale:0.95}} className="action-btn file-btn"><FileText size={20}/> {t('upload_pdf')}</motion.button><motion.button whileTap={{scale:0.95}} className="action-btn" onClick={saveMenu}><Plus size={20}/> Зберегти меню</motion.button>{menus.map(m => (<div key={m.id} className="list-item-compact" style={{marginTop:10}}><div><div style={{fontWeight:800}}>{m.title}</div><div style={{opacity:0.7, fontSize:12}}>{m.price} ₴ / {MENU_CATEGORIES.find(c=>c.id===m.cat)?.label}</div></div><Trash2 size={20} color="red" onClick={()=>deleteMenu(m.id)}/></div>))}</div>
+                  )}
                 </div>
               </motion.div>
             )}
 
             {viewArticle && (
               <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
-                <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" onClick={()=>setViewArticle(null)}><X size={24}/></motion.div>
-                  <div className="page-nav-title">News</div><div></div>
-                </div>
-                <div className="scroll-content" style={{alignItems:'flex-start', paddingTop: 20}}>
-                  <div className="news-card" style={{background: viewArticle.bg, color: viewArticle.text, width:'100%', marginBottom:20, height:'auto', minHeight:120}}>
-                    <div className="news-date">{viewArticle.date}</div>
-                    <div className="news-title" style={{fontSize:24}}>{viewArticle.title}</div>
-                  </div>
-                  <div style={{fontSize:16, lineHeight:1.6, whiteSpace:'pre-wrap'}}>{viewArticle.body}</div>
-                </div>
+                <div className="page-nav-header"><motion.div className="back-btn-circle" onClick={()=>setViewArticle(null)}><X size={24}/></motion.div><div className="page-nav-title">News</div><div></div></div>
+                <div className="scroll-content" style={{alignItems:'flex-start', paddingTop: 20}}><div className="news-card" style={{background: viewArticle.bg, color: viewArticle.text, width:'100%', marginBottom:20, height:'auto', minHeight:120}}><div className="news-date">{viewArticle.date}</div><div className="news-title" style={{fontSize:24}}>{viewArticle.title}</div></div><div style={{fontSize:16, lineHeight:1.6, whiteSpace:'pre-wrap'}}>{viewArticle.body}</div></div>
               </motion.div>
             )}
 
