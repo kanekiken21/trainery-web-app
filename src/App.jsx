@@ -12,7 +12,6 @@ const itemVars = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, t
 const MONTHS_UK = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
 const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-// Цвета для новостей (Фон + Цвет текста)
 const NEWS_THEMES = [
   { bg: 'linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%)', text: '#000' },
   { bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)', text: '#fff' },
@@ -27,16 +26,14 @@ const T = {
     h_title: "Здоров'я", h_sub: "Твій контроль",
     empty_news: "Тут поки тихо...", empty_sub: "Скоро будуть новини 🔥",
     prof: "Профіль", set: "Налаштування", adm: "Адмін",
-    theme: "Темна тема", lang: "English",
+    theme: "Тема оформлення", lang: "Мова додатка",
     insta: "Instagram", tg_bot: "Канал Trainery", tg_mom: "Канал Juls",
     cal: "Калорії", cyc: "Цикл", bod: "Заміри", menu: "Меню",
-    // MARATHON
     standard: "Standard", early: "Early Bird",
     price_cur: "650 ₴", price_early: "550 ₴",
     buy_btn: "Оплатити", enter_data: "Введи дані",
     inp_inst: "Твій Instagram", inp_tg: "Твій Telegram",
     faq_title: "Що це таке?", faq_text: "Обирай 'Standard' для поточного місяця або 'Early Bird' для запису на майбутні зі знижкою!",
-    // ADMIN
     add_news: "Додати новину", news_title: "Заголовок (макс 50)", news_body: "Текст (макс 200)",
     pub: "Опублікувати", del: "Видалити"
   },
@@ -46,16 +43,14 @@ const T = {
     h_title: "Health", h_sub: "Your control",
     empty_news: "Quiet here...", empty_sub: "News coming soon 🔥",
     prof: "Profile", set: "Settings", adm: "Admin",
-    theme: "Dark Mode", lang: "Ukrainian",
+    theme: "Appearance", lang: "App Language",
     insta: "Instagram", tg_bot: "Trainery Channel", tg_mom: "Juls Channel",
     cal: "Calories", cyc: "Cycle", bod: "Body", menu: "Menu",
-    // MARATHON
     standard: "Standard", early: "Early Bird",
     price_cur: "650 ₴", price_early: "550 ₴",
     buy_btn: "Pay Now", enter_data: "Enter details",
     inp_inst: "Your Instagram", inp_tg: "Your Telegram",
     faq_title: "What is this?", faq_text: "Choose 'Standard' for current month or 'Early Bird' for future months with discount!",
-    // ADMIN
     add_news: "Add News", news_title: "Title (max 50)", news_body: "Body (max 200)",
     pub: "Publish", del: "Delete"
   }
@@ -74,13 +69,11 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [imgErr, setImgErr] = useState(false);
 
-  // UI STATES
   const [selectedMonth, setSelectedMonth] = useState(0); 
   const [formData, setFormData] = useState({ insta: '', tg: '' });
   const [viewArticle, setViewArticle] = useState(null);
   const [showFaq, setShowFaq] = useState(false);
 
-  // ADMIN STATES
   const [newArticle, setNewArticle] = useState({ title: '', body: '', themeIdx: 0 });
 
   const t = (key) => T[lang][key];
@@ -112,10 +105,17 @@ function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    // ИСПРАВЛЕННАЯ ЛОГИКА ЗАГРУЗКИ
+    setProgress(0); // Начинаем с 0
     const interval = setInterval(() => {
       setProgress(prev => {
-        if (prev >= 100) { clearInterval(interval); setTimeout(() => setLoading(false), 500); return 100; }
-        return prev + 10;
+        const next = prev + 5;
+        if (next >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setLoading(false), 800); // Небольшая задержка перед скрытием
+          return 100;
+        }
+        return next;
       });
     }, 50);
     const tg = window.Telegram.WebApp;
@@ -198,9 +198,9 @@ function App() {
                   <h2>{t('m_title')}</h2><p>{t('m_sub')}</p>
                 </motion.div>
                 
-                <div className="glass-card" style={{position:'relative'}}>
+                <div className="glass-card" style={{position:'relative', paddingBottom: 30}}>
                   <motion.div className="faq-btn" whileTap={{scale:0.9}} onClick={()=>setShowFaq(!showFaq)}><HelpCircle size={18}/></motion.div>
-                  {showFaq && <div style={{background:'rgba(0,0,0,0.05)', padding:15, borderRadius:15, marginBottom:20, fontSize:14}}>{t('faq_text')}</div>}
+                  {showFaq && <div style={{background:'rgba(0,0,0,0.05)', padding:15, borderRadius:15, marginBottom:20, fontSize:14, textAlign:'left'}}>{t('faq_text')}</div>}
 
                   <div className="month-grid">
                     {getMarathonMonths().map((m) => (
@@ -256,7 +256,7 @@ function App() {
                   <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('home')}><ArrowLeft size={24}/></motion.div>
                   <div className="page-nav-title">{t('prof')}</div><div></div>
                 </div>
-                <div className="scroll-content">
+                <div className="scroll-content" style={{paddingTop: 20}}>
                   <div className="avatar-section">
                      {user?.photo_url ? <img src={user.photo_url} className="avatar-big"/> : <User size={50}/>}
                   </div>
@@ -271,21 +271,26 @@ function App() {
               </motion.div>
             )}
 
+            {/* --- НАСТРОЙКИ (ВЕРНУЛ БОЛЬШИЕ КНОПКИ) --- */}
             {activeTab === 'settings' && (
               <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}}>
                 <div className="page-nav-header">
                   <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div>
                   <div className="page-nav-title">{t('set')}</div><div></div>
                 </div>
-                <div className="scroll-content">
-                  <div className="settings-grid">
-                    <motion.div className="grid-item" whileTap={{scale:0.95}} onClick={toggleTheme}>
-                      {theme==='light'?<Moon size={32}/>:<Sun size={32}/>} {t('theme')}
-                    </motion.div>
-                    <motion.div className="grid-item" whileTap={{scale:0.95}} onClick={()=>setLang(lang==='uk'?'en':'uk')}>
-                      <Globe size={32}/> {lang.toUpperCase()}
-                    </motion.div>
+                <div className="scroll-content" style={{paddingTop: 20}}>
+                  <div className="menu-stack" style={{marginBottom: 30}}>
+                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={toggleTheme}>
+                       {theme==='light'?<Moon size={24}/>:<Sun size={24}/>}
+                       <span style={{flex:1, textAlign:'left'}}>{t('theme')}</span>
+                     </motion.div>
+                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setLang(lang==='uk'?'en':'uk')}>
+                       <Globe size={24}/>
+                       <span style={{flex:1, textAlign:'left'}}>{t('lang')}</span>
+                       <span style={{opacity:0.6, fontWeight: 800}}>{lang.toUpperCase()}</span>
+                     </motion.div>
                   </div>
+
                   <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4>
                   <div className="menu-stack">
                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
@@ -296,18 +301,17 @@ function App() {
               </motion.div>
             )}
 
-            {/* --- АДМИНКА --- */}
             {activeTab === 'admin' && (
               <motion.div key="admin" className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}}>
                 <div className="page-nav-header">
                   <motion.div className="back-btn-circle" onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div>
                   <div className="page-nav-title">{t('adm')}</div><div></div>
                 </div>
-                <div className="scroll-content">
+                <div className="scroll-content" style={{paddingTop: 20}}>
                   <div className="admin-section">
                     <div className="admin-title">{t('add_news')}</div>
                     <div className="color-picker">
-                      {NEWS_THEMES.map((th, i) => <div key={i} className={`color-btn ${newArticle.themeIdx===i?'active':''}`} style={{background:th.bg}} onClick={()=>setNewArticle({...newArticle, themeIdx:i})}/>)}
+                      {NEWS_THEMES.map((th, i) => <motion.div key={i} whileTap={{scale:0.9}} className={`color-btn ${newArticle.themeIdx===i?'active':''}`} style={{background:th.bg}} onClick={()=>setNewArticle({...newArticle, themeIdx:i})}/>)}
                     </div>
                     <div className="input-group">
                       <input className="custom-input" placeholder={t('news_title')} value={newArticle.title} onChange={e=>setNewArticle({...newArticle, title:e.target.value})} maxLength={50}/>
@@ -315,7 +319,7 @@ function App() {
                     <div className="input-group">
                       <textarea className="custom-input" rows={4} placeholder={t('news_body')} value={newArticle.body} onChange={e=>setNewArticle({...newArticle, body:e.target.value})} maxLength={200}/>
                     </div>
-                    <button className="action-btn" onClick={addNews}><Plus size={20}/> {t('pub')}</button>
+                    <motion.button whileTap={{scale:0.95}} className="action-btn" onClick={addNews}><Plus size={20}/> {t('pub')}</motion.button>
                   </div>
                   <div className="admin-section">
                     <div className="admin-title">Активні новини</div>
@@ -330,14 +334,13 @@ function App() {
               </motion.div>
             )}
 
-            {/* --- СТАТЬЯ (ПРОСМОТР) --- */}
             {viewArticle && (
               <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
                 <div className="page-nav-header">
                   <motion.div className="back-btn-circle" onClick={()=>setViewArticle(null)}><X size={24}/></motion.div>
                   <div className="page-nav-title">News</div><div></div>
                 </div>
-                <div className="scroll-content" style={{alignItems:'flex-start'}}>
+                <div className="scroll-content" style={{alignItems:'flex-start', paddingTop: 20}}>
                   <div className="news-card" style={{background: viewArticle.bg, color: viewArticle.text, width:'100%', marginBottom:20, height:'auto', minHeight:120}}>
                     <div className="news-date">{viewArticle.date}</div>
                     <div className="news-title" style={{fontSize:24}}>{viewArticle.title}</div>

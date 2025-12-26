@@ -13,7 +13,7 @@
   --radius: 32px;
 
   --safe-top: max(env(safe-area-inset-top), 25px);
-  --header-height: 64px;
+  --header-height: 70px; /* Чуть больше для маски */
   --nav-height: 85px;
 }
 
@@ -50,15 +50,17 @@ html, body, #root {
   background: radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15), transparent 50%), radial-gradient(circle at 100% 100%, rgba(244, 114, 182, 0.15), transparent 50%);
 }
 
-/* --- ХЕДЕР --- */
+/* --- ХЕДЕР (С МАСКОЙ) --- */
 .fixed-header {
   position: absolute; top: 0; left: 0; right: 0;
+  height: calc(var(--header-height) + var(--safe-top)); 
   padding: var(--safe-top) 24px 10px; 
-  height: calc(var(--header-height) + var(--safe-top));
   display: grid; grid-template-columns: 48px 1fr 48px; align-items: center;
   z-index: 50;
-  background: rgba(var(--bg), 0.01); 
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  background: rgba(var(--bg), 0.8); 
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
 }
 
 .header-center { display: flex; align-items: center; justify-content: center; gap: 12px; }
@@ -82,7 +84,8 @@ html, body, #root {
 .page-wrapper {
   position: absolute; inset: 0;
   padding-top: calc(var(--header-height) + var(--safe-top));
-  padding-bottom: var(--nav-height);
+  /* Увеличил отступ снизу, чтобы скролл был комфортным */
+  padding-bottom: calc(var(--nav-height) + 20px);
   overflow-y: auto; scrollbar-width: none;
   display: flex; flex-direction: column; padding-left: 20px; padding-right: 20px;
 }
@@ -110,12 +113,11 @@ html, body, #root {
   animation: pulse-soft 3s infinite ease-in-out;
 }
 @keyframes pulse-soft { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-
 .icon-glow-container::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); }
 .glass-card h3 { font-size: 24px; font-weight: 800; margin: 0 0 8px; }
 .glass-card p { font-size: 16px; color: var(--text-sec); opacity: 0.8; }
 
-/* НОВОСТИ (ИСПРАВЛЕНО) */
+/* НОВОСТИ */
 .news-carousel {
   display: flex; gap: 12px; overflow-x: auto; 
   padding: 5px 5px 20px 5px; scroll-snap-type: x mandatory;
@@ -124,12 +126,12 @@ html, body, #root {
 .news-carousel::-webkit-scrollbar { display: none; }
 
 .news-card {
-  min-width: 240px; height: 150px; /* Чуть меньше */
+  min-width: 240px; height: 150px;
   border-radius: 28px; padding: 20px;
   display: flex; flex-direction: column; justify-content: flex-end;
   box-shadow: 0 10px 20px rgba(0,0,0,0.1);
   scroll-snap-align: center; position: relative; overflow: hidden;
-  border: none; /* Убрал бордер, чтобы не было артефактов на белом */
+  border: none;
 }
 .news-date { font-size: 12px; opacity: 0.8; margin-bottom: 5px; font-weight: 600; }
 .news-title { font-size: 17px; font-weight: 800; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -160,10 +162,9 @@ html, body, #root {
 .action-btn {
   width: 100%; padding: 18px; border-radius: 24px; border: none;
   font-weight: 700; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
-  background: var(--text); color: var(--bg); margin-top: 10px;
+  background: var(--text); color: var(--bg); margin-top: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-/* FAQ КНОПКА */
 .faq-btn {
   position: absolute; top: 20px; right: 20px;
   width: 32px; height: 32px; background: var(--bg); border-radius: 50%;
@@ -175,53 +176,43 @@ html, body, #root {
 /* БАННЕРЫ ЗДОРОВЬЯ */
 .health-banner {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 30px; border-radius: 36px; margin-bottom: 15px;
+  padding: 25px 30px; border-radius: 32px; margin-bottom: 15px;
   color: white; position: relative; overflow: hidden;
-  box-shadow: 0 15px 30px -5px rgba(0,0,0,0.15); min-height: 120px;
+  box-shadow: 0 15px 30px -5px rgba(0,0,0,0.15); min-height: 100px;
   animation: fade-in-up 0.6s ease-out backwards;
 }
 .health-banner:nth-child(1) { animation-delay: 0.1s; }
 .health-banner:nth-child(2) { animation-delay: 0.2s; }
 .health-banner:nth-child(3) { animation-delay: 0.3s; }
 .health-banner:nth-child(4) { animation-delay: 0.4s; }
-
 @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 .health-text { position: relative; z-index: 2; }
-.health-text h3 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
-.health-icon-anim { font-size: 32px; position: relative; z-index: 2; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); animation: icon-float 3s ease-in-out infinite; }
-@keyframes icon-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.health-text h3 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+.health-icon-anim { font-size: 32px; position: relative; z-index: 2; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); animation: icon-sway 3s ease-in-out infinite; }
+@keyframes icon-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
 
 .banner-anim-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.banner-decor { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.15); animation: breathe 4s infinite ease-in-out; }
+.banner-decor { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.15); animation: liquid-move 6s infinite ease-in-out; }
 .bd-1 { width: 160px; height: 160px; top: -50px; right: -50px; filter: blur(25px); }
-.bd-2 { width: 120px; height: 120px; bottom: -40px; left: -20px; filter: blur(30px); animation-delay: 1.5s; }
-@keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.1); opacity: 0.3; } }
+.bd-2 { width: 120px; height: 120px; bottom: -40px; left: -20px; filter: blur(30px); animation-delay: -2s; }
+@keyframes liquid-move { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(10px, 10px) scale(1.1); } 66% { transform: translate(-10px, 5px) scale(0.9); } 100% { transform: translate(0, 0) scale(1); } }
 
-/* --- ПРОФИЛЬ (ИСПРАВЛЕНО) --- */
-.avatar-section {
-  position: relative; width: 130px; height: 130px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; margin-bottom: 20px;
-  /* Убрали лишние тени */
-}
-.avatar-big { 
-  width: 100%; height: 100%; border-radius: 50%; 
-  border: 4px solid var(--card); 
-  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); 
-  object-fit: cover; /* ВАЖНО: чтобы не сплющивало */
-}
-
-/* ОСТАЛЬНОЕ */
+/* ЭКРАНЫ (FULLSCREEN) */
 .fullscreen-page { position: fixed; inset: 0; z-index: 200; background: var(--bg); display: flex; flex-direction: column; }
 .page-nav-header { flex-shrink: 0; padding: var(--safe-top) 20px 10px; display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; margin-bottom: 10px; }
 .back-btn-circle { width: 48px; height: 48px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: var(--text); }
 .page-nav-title { font-size: 20px; font-weight: 800; text-align: center; }
 .scroll-content { flex: 1; overflow-y: auto; padding: 10px 24px 40px; display: flex; flex-direction: column; align-items: center; }
 
+/* ПРОФИЛЬ (АВАТАР ИСПРАВЛЕН) */
+.avatar-section { position: relative; width: 130px; height: 130px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 20px; }
+.avatar-big { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--card); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); object-fit: cover; }
 .user-name { font-size: 32px; font-weight: 800; margin: 0; letter-spacing: -1px; }
 .user-handle { color: var(--text-sec); font-size: 16px; margin: 5px 0 25px; font-weight: 500; }
 .id-chip { padding: 10px 20px; background: rgba(139, 92, 246, 0.1); color: var(--accent); border-radius: 24px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 40px; }
+
+/* МЕНЮ И КНОПКИ (ВЕРНУЛ БОЛЬШИЕ КНОПКИ В НАСТРОЙКИ) */
 .menu-stack { width: 100%; display: flex; flex-direction: column; gap: 12px; }
 .menu-row { width: 100%; padding: 22px; background: var(--card); border-radius: 28px; border: 1px solid var(--border); display: flex; align-items: center; gap: 16px; font-weight: 700; font-size: 17px; color: var(--text); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
 
@@ -230,9 +221,17 @@ html, body, #root {
 .nav-btn { width: 64px; height: 64px; border-radius: 50%; border: none; background: transparent; display: flex; align-items: center; justify-content: center; color: var(--text-sec); position: relative; transition: color 0.3s; }
 .nav-btn.active { color: var(--accent); }
 
-/* АДМИН ПАНЕЛЬ */
+/* АДМИН ПАНЕЛЬ (ФИКС ЦВЕТОВ) */
 .admin-section { width: 100%; margin-bottom: 30px; border-top: 1px solid var(--border); padding-top: 20px; text-align: left; }
 .admin-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; color: var(--accent); }
 .color-picker { display: flex; gap: 10px; margin-bottom: 15px; }
-.color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
-.color-btn.active { border-color: var(--text); transform: scale(1.1); }
+/* Используем тень для выделения, чтобы не было багов с рамкой */
+.color-btn { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.color-btn.active { transform: scale(1.15); box-shadow: 0 0 0 3px var(--text), 0 2px 5px rgba(0,0,0,0.1); }
+
+/* ЗАГРУЗКА */
+.loading-screen { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
+.loading-logo-img { width: 100px; height: 100px; object-fit: contain; }
+[data-theme="dark"] .loading-logo-img { filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+.progress-container { width: 200px; height: 6px; background: var(--border); border-radius: 10px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--grad-primary); transition: width 0.2s ease; border-radius: 10px; }
