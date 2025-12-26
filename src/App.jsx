@@ -4,7 +4,6 @@ import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, Arro
 import './App.css';
 
 const ADMIN_ID = 8297304095;
-// Пружина премиум-класса
 const premiumSpring = { type: "spring", stiffness: 350, damping: 30, mass: 1 };
 
 const T = {
@@ -100,8 +99,9 @@ function App() {
           <div className="blob blob-2"></div>
         </div>
 
+        {/* НОВЫЙ GRID ХЕДЕР */}
         <header className="fixed-header">
-          <div style={{width: 50}}></div>
+          <div className="header-left-spacer"></div> {/* Пустой блок для баланса */}
           <div className="header-center">
              {!imgError.logo ? <img src="1.png" className="app-logo" onError={() => setImgError(p=>({...p, logo:true}))} /> : <Zap color="#7B3494"/>}
              <h1 className="gradient-text">Trainery</h1>
@@ -124,6 +124,7 @@ function App() {
                     <p>{t('subtitle')}</p>
                   </div>
                   <motion.div whileTap={{scale: 0.98}} className="empty-card glass-panel">
+                      {/* НОВАЯ ОБЕРТКА ДЛЯ СВЕЧЕНИЯ */}
                       <div className="image-glow-wrapper">
                         {!imgError.chibi ? <motion.img src="2.png" className="chibi-img" animate={{ y: [0, -12, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} onError={() => setImgError(p=>({...p, chibi:true}))} /> : <Sparkles size={70} color="#7B3494"/>}
                       </div>
@@ -134,13 +135,14 @@ function App() {
 
               {activeTab === 'marathons' && (
                 <motion.div key="marathons" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={premiumSpring} className="page">
-                  {/* ИДЕАЛЬНЫЙ HERO ЗАГОЛОВОК */}
+                  {/* ИСПРАВЛЕННЫЙ HERO ЗАГОЛОВОК */}
                   <div className="hero-header">
                     <div className="hero-icon-container"><Dumbbell size={28} color="white"/></div>
                     <div className="hero-text-container"><h2 className="hero-title gradient-text">{t('hero_m_title')}</h2><p className="hero-subtitle">{t('hero_m_sub')}</p></div>
                   </div>
 
                   <motion.div whileTap={{scale: 0.98}} className="empty-card glass-panel" style={{ minHeight: '420px' }}>
+                       {/* НОВАЯ ОБЕРТКА ДЛЯ СВЕЧЕНИЯ */}
                        <div className="image-glow-wrapper">
                           {!imgError.premium ? <motion.img src="1.png" className="prem-img" animate={{ rotate: [0, 3, -3, 0] }} transition={{ repeat: Infinity, duration: 6 }} onError={() => setImgError(p=>({...p, premium:true}))} /> : <Zap size={70} color="#7B3494"/>}
                        </div>
@@ -151,7 +153,7 @@ function App() {
 
               {activeTab === 'health' && (
                 <motion.div key="health" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={premiumSpring} className="page">
-                  {/* ИДЕАЛЬНЫЙ HERO ЗАГОЛОВОК */}
+                  {/* ИСПРАВЛЕННЫЙ HERO ЗАГОЛОВОК */}
                   <div className="hero-header">
                     <div className="hero-icon-container"><HeartPulse size={28} color="white"/></div>
                     <div className="hero-text-container"><h2 className="hero-title gradient-text">{t('hero_h_title')}</h2><p className="hero-subtitle">{t('hero_h_sub')}</p></div>
@@ -199,25 +201,25 @@ function App() {
               <div className="modal-header-fixed" onClick={() => setProfileOpen(false)}><div className="bar"></div></div>
 
               <div className="modal-scrollable-content">
-                {/* ВАЖНО: mode="wait" устраняет баги с наложением */}
+                {/* ВАЖНО: mode="wait" и ПЛАВНАЯ анимация без смещения */}
                 <AnimatePresence mode="wait" initial={false}>
                   {!showSettings ? (
-                    <motion.div key="p" initial={{x:-20, opacity:0}} animate={{x:0, opacity:1}} exit={{x:-20, opacity:0}} transition={premiumSpring} className="profile-center">
+                    <motion.div key="p" initial={{opacity:0, scale: 0.95}} animate={{opacity:1, scale: 1}} exit={{opacity:0, scale: 0.95}} transition={premiumSpring} className="profile-center">
                       <div className="big-avatar-wrapper">
-                         {/* Псевдо-элемент в CSS делает идеальное свечение */}
+                         {/* Свечение теперь через псевдо-элемент в CSS */}
                          <div className="big-avatar">{user?.photo_url ? <img src={user.photo_url}/> : <User size={50} />}</div>
                       </div>
                       <h3 className="gradient-text">{user?.first_name}</h3>
                       <div className="username-tag">@{user?.username || 'user'}</div>
                       <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}><span>ID: {user?.id}</span> {copied ? <span style={{color: 'var(--accent)'}}>OK</span> : <Copy size={14}/>}</motion.div>
                       
-                      <div className="menu-list" style={{marginTop: 35, width: '100%'}}>
+                      <div className="menu-list" style={{marginTop: 35}}>
                         <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={() => setShowSettings(true)}><Settings size={22}/> {t('settings')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.4}}/></motion.div>
                         {user?.id === ADMIN_ID && <motion.div whileTap={{scale:0.98}} className="menu-item admin-item"><Lock size={22}/> {t('admin')}</motion.div>}
                       </div>
                     </motion.div>
                   ) : (
-                    <motion.div key="s" initial={{x:20, opacity:0}} animate={{x:0, opacity:1}} exit={{x:20, opacity:0}} transition={premiumSpring} className="settings-content">
+                    <motion.div key="s" initial={{opacity:0, scale: 0.95}} animate={{opacity:1, scale: 1}} exit={{opacity:0, scale: 0.95}} transition={premiumSpring} className="settings-content">
                       <h3 className="gradient-text" style={{textAlign:'center', marginBottom: 25}}>{t('settings')}</h3>
                       
                       <div className="settings-grid">
@@ -233,7 +235,7 @@ function App() {
                         </motion.div>
                       </div>
                       
-                      <h4 style={{marginTop: 25, marginBottom: 12, opacity: 0.6, fontSize: 14, paddingLeft: 12, fontWeight: 700}}>{t('socials')}</h4>
+                      <h4 style={{marginTop: 25, marginBottom: 12, opacity: 0.6, fontSize: 14, paddingLeft: 12, fontWeight: 700, width: '100%', maxWidth: '340px'}}>{t('socials')}</h4>
                       <div className="menu-list">
                         <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={22} color="#E1306C"/> {t('insta')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
                         <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/trainery_community', true)}><Users size={22} color="#0088cc"/> {t('comm_channel_bot')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
