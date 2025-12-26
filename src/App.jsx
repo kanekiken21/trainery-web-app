@@ -5,8 +5,8 @@ import './App.css';
 
 const ADMIN_ID = 8297304095; 
 
-// ⚙️ НАСТРОЙКИ АНИМАЦИИ (ПЛАВНАЯ ПРУЖИНА)
-const spring = { type: "spring", stiffness: 300, damping: 30 };
+// 🔥 УПРУГАЯ ФИЗИКА
+const iosSpring = { type: "spring", stiffness: 350, damping: 30 };
 
 const T = {
   uk: {
@@ -36,21 +36,17 @@ function App() {
   const [lang, setLang] = useState('uk');
   const [theme, setTheme] = useState('light');
   const [copied, setCopied] = useState(false);
-  
-  // Ошибки загрузки картинок
   const [imgError, setImgError] = useState({ logo: false, chibi: false, premium: false });
 
   const t = (key) => T[lang][key];
 
   useEffect(() => {
-    // Загрузка
-    setTimeout(() => setLoading(false), 2000);
+    // Красивая задержка загрузки
+    setTimeout(() => setLoading(false), 2200);
 
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-    
-    // Блокируем скролл боди, чтобы не шаталось
     document.body.style.overflow = 'hidden';
 
     const tgUser = tg.initDataUnsafe?.user;
@@ -79,11 +75,8 @@ function App() {
 
   const SpringButton = ({ children, onClick, className }) => (
     <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.95 }}
-      transition={spring}
-      onClick={onClick}
-      className={`spring-btn ${className || ''}`}
+      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }}
+      transition={iosSpring} onClick={onClick} className={`spring-btn ${className || ''}`}
     >
       {children}
     </motion.button>
@@ -91,186 +84,122 @@ function App() {
 
   return (
     <>
-      {/* ЗАГРУЗОЧНЫЙ ЭКРАН */}
+      {/* ЭКРАН ЗАГРУЗКИ */}
       <AnimatePresence>
         {loading && (
-          <motion.div className="loading-screen" exit={{ opacity: 0 }}>
+          <motion.div className="loading-screen" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.4 }}>
              {!imgError.logo ? (
                <motion.img 
-                 src="/logo.png" className="loading-logo" 
-                 animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}
+                 src="/logo.png" className="loading-logo"
+                 initial={{ scale: 0.8, opacity: 0 }}
+                 animate={{ scale: [1, 1.05, 1], opacity: 1 }} 
+                 transition={{ repeat: Infinity, duration: 2 }}
                  onError={() => setImgError(prev => ({...prev, logo: true}))}
                />
              ) : (
-               <Zap size={64} color="#FF2D55" />
+               <Zap size={64} color="#7B3494" />
              )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="app-container">
+      {/* ОСНОВНОЙ КОНТЕЙНЕР (Добавляем класс blurred если профиль открыт) */}
+      <div className={`app-container ${isProfileOpen ? 'blurred' : ''}`}>
         
-        {/* ШАПКА */}
         <header className="fixed-header">
-          <div className="header-logo">
-             {!imgError.logo ? (
-               <img src="/logo.png" className="app-logo" onError={() => setImgError(prev => ({...prev, logo: true}))}/>
-             ) : (
-               <div className="app-logo-fallback"><Zap size={20} color="white"/></div>
-             )}
+          <motion.div className="header-logo" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}}>
+             {!imgError.logo ? <img src="/logo.png" className="app-logo" onError={() => setImgError(prev => ({...prev, logo: true}))}/> : <div className="app-logo-fallback"><Zap size={20} color="white"/></div>}
              <h1>Trainery</h1>
-          </div>
-          
-          <motion.div 
-            className="profile-bubble" whileTap={{ scale: 0.9 }}
-            onClick={() => { setProfileOpen(true); setShowSettings(false); }}
-          >
+          </motion.div>
+          <motion.div className="profile-bubble" whileTap={{ scale: 0.9 }} onClick={() => { setProfileOpen(true); setShowSettings(false); }}>
              {user?.photo_url ? <img src={user.photo_url} /> : <User size={24} />}
           </motion.div>
         </header>
 
-        {/* КОНТЕНТ */}
         <div className="content-area">
           <LayoutGroup>
             <AnimatePresence mode="wait">
-              
-              {/* ГЛАВНАЯ */}
               {activeTab === 'home' && (
-                <motion.div 
-                  key="home"
-                  initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                  transition={spring}
-                  className="page"
-                >
+                <motion.div key="home" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={iosSpring} className="page">
                   <div className="greeting-block">
-                    <h2>{t('hello')}, {user?.first_name}! 👋</h2>
+                    <AnimatePresence mode="wait">
+                      <motion.h2 key={lang} initial={{opacity:0, y:5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}}>{t('hello')}, {user?.first_name}! 👋</motion.h2>
+                    </AnimatePresence>
                     <p>{t('subtitle')}</p>
                   </div>
-
                   <div className="empty-card glass-panel">
                       {!imgError.chibi ? (
-                        <motion.img 
-                           src="/chibi.png" className="chibi-img"
-                           animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 3 }}
-                           onError={() => setImgError(prev => ({...prev, chibi: true}))}
-                        />
+                        <motion.img src="/chibi.png" className="chibi-img" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} onError={() => setImgError(prev => ({...prev, chibi: true}))} />
                       ) : (
-                        <div style={{marginBottom: 20}}><Sparkles size={60} color="#FF2D55"/></div>
+                        <div className="icon-fallback"><Sparkles size={50} color="#7B3494"/></div>
                       )}
-                      <div className="empty-text">
-                        <h3>{t('news_empty')}</h3>
-                        <p>{t('news_sub')}</p>
-                      </div>
+                      <div className="empty-text"><h3>{t('news_empty')}</h3><p>{t('news_sub')}</p></div>
                   </div>
                 </motion.div>
               )}
 
-              {/* МАРАФОНЫ */}
               {activeTab === 'marathons' && (
-                <motion.div 
-                  key="marathons"
-                  initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                  transition={spring}
-                  className="page"
-                >
+                <motion.div key="marathons" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={iosSpring} className="page">
                   <h2 className="page-title">{t('m_title')}</h2>
-                  <motion.div className="empty-card glass-panel" style={{ minHeight: '300px' }}>
+                  <motion.div className="empty-card glass-panel" style={{ minHeight: '320px' }}>
                        {!imgError.premium ? (
-                         <div className="premium-icon-box">
-                            <motion.img 
-                              src="/logo.png" className="prem-img" style={{borderRadius: 16}}
-                              animate={{ rotate: [0, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 5 }}
-                              onError={() => setImgError(prev => ({...prev, premium: true}))}
-                            />
-                         </div>
+                         <motion.img src="/logo.png" className="prem-img" style={{borderRadius: 16}} animate={{ rotate: [0, 3, -3, 0] }} transition={{ repeat: Infinity, duration: 6 }} onError={() => setImgError(prev => ({...prev, premium: true}))} />
                        ) : (
-                         <div style={{marginBottom: 20}}><Zap size={60} color="#FF2D55"/></div>
+                         <div className="icon-fallback"><Zap size={50} color="#7B3494"/></div>
                        )}
-                       <div className="empty-text">
-                          <h3>{t('m_empty')}</h3>
-                          <p>{t('m_empty_sub')}</p>
-                       </div>
+                       <div className="empty-text"><h3>{t('m_empty')}</h3><p>{t('m_empty_sub')}</p></div>
                   </motion.div>
                 </motion.div>
               )}
 
-              {/* ЗДОРОВЬЕ */}
               {activeTab === 'health' && (
-                <motion.div 
-                  key="health"
-                  initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                  transition={spring}
-                  className="page center-page"
-                >
-                  <motion.div 
-                    className="placeholder-circle"
-                    animate={{ boxShadow: ["0 0 0 0px rgba(255,45,85,0.2)", "0 0 0 15px rgba(255,45,85,0)"] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                  >
-                    <Lock size={32} color="#FF4081" />
-                  </motion.div>
-                  <h3>{t('h_title')}</h3>
-                  <p>{t('h_sub')}</p>
+                <motion.div key="health" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={iosSpring} className="page center-page">
+                  <motion.div className="placeholder-circle" animate={{ boxShadow: ["0 0 0 0px rgba(123, 52, 148, 0.2)", "0 0 0 20px rgba(123, 52, 148, 0)"] }} transition={{ repeat: Infinity, duration: 2 }}><Lock size={32} color="#7B3494" /></motion.div>
+                  <h3>{t('h_title')}</h3><p>{t('h_sub')}</p>
                 </motion.div>
               )}
             </AnimatePresence>
           </LayoutGroup>
         </div>
 
-        {/* НИЖНЕЕ МЕНЮ */}
         <div className="bottom-nav-container">
-          <motion.div className="nav-island" initial={{ y: 50 }} animate={{ y: 0 }} transition={spring}>
+          <motion.div className="nav-island" initial={{ y: 50 }} animate={{ y: 0 }} transition={iosSpring}>
             {['home', 'marathons', 'health'].map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)} className={activeTab === tab ? 'active' : ''}>
                 {tab === 'home' && <Home size={24} />}
                 {tab === 'marathons' && <Zap size={24} />}
                 {tab === 'health' && <Activity size={24} />}
-                {activeTab === tab && <motion.div layoutId="bubble" className="nav-bg-bubble" transition={spring} />}
+                {activeTab === tab && <motion.div layoutId="bubble" className="nav-bg-bubble" transition={iosSpring} />}
               </button>
             ))}
           </motion.div>
         </div>
-
       </div>
 
-      {/* --- МОДАЛКА ПРОФИЛЯ --- */}
       <AnimatePresence>
         {isProfileOpen && (
           <>
+            <motion.div className="backdrop" onClick={() => setProfileOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
             <motion.div 
-              className="backdrop" 
-              onClick={() => setProfileOpen(false)}
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            />
-            
-            <motion.div 
-              className="modal"
+              className="modal glass-panel"
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-              transition={spring}
-              drag="y" dragConstraints={{ top: 0 }} dragElastic={0.1}
+              transition={iosSpring}
+              drag="y" dragConstraints={{ top: 0 }} dragElastic={0.05}
               onDragEnd={(_, info) => { if (info.offset.y > 100) setProfileOpen(false) }}
             >
-              <div className="modal-top" onClick={() => setProfileOpen(false)}>
-                <div className="bar"></div>
-              </div>
+              <div className="modal-top" onClick={() => setProfileOpen(false)}><div className="bar"></div></div>
               
               <AnimatePresence mode="wait" initial={false}>
                 {!showSettings ? (
-                  // ПРОФИЛЬ
-                  <motion.div key="prof" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-20}} className="profile-content">
+                  <motion.div key="prof" initial={{opacity:0, x:-50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}} transition={iosSpring} className="profile-content">
                     <div className="profile-header-center">
-                      <div className="big-avatar">
-                        {user?.photo_url ? <img src={user.photo_url}/> : <User size={48} />}
-                      </div>
+                      <div className="big-avatar">{user?.photo_url ? <img src={user.photo_url}/> : <User size={48} />}</div>
                       <h3>{user?.first_name}</h3>
                       <div className="username-tag">@{user?.username || 'user'}</div>
-                      
-                      <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}>
-                        <span>ID: {user?.id}</span>
-                        {copied ? <span style={{color:'#34C759', fontWeight:'bold', marginLeft:5}}>OK</span> : <Copy size={14} style={{marginLeft:5, opacity:0.5}}/>}
-                      </motion.div>
+                      <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}><span>ID: {user?.id}</span>{copied ? <span style={{color:'#7B3494', fontWeight:'bold', marginLeft:5}}>OK</span> : <Copy size={12} style={{marginLeft:5, opacity:0.5}}/>}</motion.div>
                     </div>
-
+                    
+                    {/* КНОПКИ СТОЛБИКОМ */}
                     <div className="menu-list">
                       <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={() => setShowSettings(true)}>
                         <Settings size={20} /> {t('settings')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
@@ -279,17 +208,16 @@ function App() {
                     </div>
                   </motion.div>
                 ) : (
-                  // НАСТРОЙКИ
-                  <motion.div key="sett" initial={{opacity:0, x:20}} animate={{opacity:1, x:0}} exit={{opacity:0, x:20}} className="settings-content">
+                  <motion.div key="sett" initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}} transition={iosSpring} className="settings-content">
                     <h3 style={{marginBottom: 20, textAlign: 'center'}}>{t('settings')}</h3>
                     
-                    <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={toggleTheme}>
+                    <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={toggleTheme}>
                       {theme === 'light' ? <Moon size={20}/> : <Sun size={20}/>}
                       {t('theme')}
                       <div className="toggle-switch" data-active={theme === 'dark'}></div>
                     </motion.div>
                     
-                    <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={() => setLang(lang === 'uk' ? 'en' : 'uk')}>
+                    <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={() => setLang(lang === 'uk' ? 'en' : 'uk')}>
                       <Globe size={20}/>
                       {t('lang')}
                       <div className="lang-badge">{lang.toUpperCase()}</div>
