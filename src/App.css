@@ -231,3 +231,68 @@ html, body, #root {
 
 .progress-container { width: 200px; height: 6px; background: var(--border); border-radius: 10px; overflow: hidden; }
 .progress-bar { height: 100%; background: var(--grad-primary); transition: width 0.2s ease; border-radius: 10px; }
+
+/* --- НОВОСТИ (КАРУСЕЛЬ) --- */
+.news-carousel {
+  display: flex; gap: 15px; overflow-x: auto; 
+  padding: 5px 5px 20px 5px; /* Отступы для теней */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.news-carousel::-webkit-scrollbar { display: none; }
+
+.news-card {
+  min-width: 260px; height: 160px;
+  border-radius: 28px; padding: 20px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  scroll-snap-align: center; position: relative; overflow: hidden;
+  transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.2);
+}
+.news-card:active { transform: scale(0.97); }
+.news-date { font-size: 12px; opacity: 0.8; margin-bottom: 5px; font-weight: 600; }
+.news-title { font-size: 18px; font-weight: 800; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* --- ЭКРАН СТАТЬИ --- */
+.article-content { width: 100%; text-align: left; }
+.article-date { color: var(--text-sec); font-size: 14px; margin-bottom: 10px; }
+.article-body { font-size: 16px; line-height: 1.6; color: var(--text); white-space: pre-wrap; }
+
+/* --- МАРАФОНЫ (ВЫБОР МЕСЯЦА) --- */
+.month-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 25px; }
+.month-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+  padding: 15px; text-align: center; cursor: pointer; transition: 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+}
+.month-card.selected { border-color: var(--accent); background: rgba(123, 52, 148, 0.05); box-shadow: 0 0 0 2px var(--accent); }
+.month-name { font-weight: 800; font-size: 16px; }
+.month-price { font-size: 13px; color: var(--text-sec); }
+.month-tag { font-size: 10px; padding: 4px 8px; border-radius: 10px; font-weight: 700; text-transform: uppercase; }
+.tag-standard { background: #E0E0E0; color: #555; }
+.tag-early { background: #FFD700; color: #8a6d00; }
+
+/* --- ФОРМЫ (ВВОД ДАННЫХ) --- */
+.input-group { width: 100%; margin-bottom: 20px; text-align: left; }
+.input-label { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-sec); display: block; }
+.custom-input {
+  width: 100%; padding: 16px; border-radius: 20px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text); font-size: 16px; outline: none;
+  font-family: inherit; transition: 0.3s;
+}
+.custom-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+/* --- АДМИН ПАНЕЛЬ --- */
+.admin-section { width: 100%; margin-bottom: 30px; border-top: 1px solid var(--border); padding-top: 20px; }
+.admin-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; color: var(--accent); }
+.color-picker { display: flex; gap: 10px; margin-bottom: 15px; }
+.color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+.color-btn.active { border-color: var(--text); transform: scale(1.1); }
+
+.action-btn {
+  width: 100%; padding: 18px; border-radius: 24px; border: none;
+  font-weight: 700; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--text); color: var(--bg); margin-top: 10px;
+}
+.delete-btn { background: #FF3B30; color: white; margin-top: 5px; font-size: 14px; padding: 12px; }
