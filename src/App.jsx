@@ -40,14 +40,13 @@ function App() {
   const [lang, setLang] = useState('uk');
   const [theme, setTheme] = useState('light');
   const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(0); // Состояние для прогресс-бара
+  const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
   const [imgErr, setImgErr] = useState(false);
 
   const t = (key) => T[lang][key];
 
   useEffect(() => {
-    // Логика загрузки с прогресс-баром
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
@@ -55,7 +54,7 @@ function App() {
           setTimeout(() => setLoading(false), 500);
           return 100;
         }
-        return prev + 5; // Скорость загрузки
+        return prev + 5;
       });
     }, 50);
 
@@ -91,7 +90,6 @@ function App() {
       <div className="noise-overlay"></div>
       <div className="ambient-bg"></div>
 
-      {/* ЭКРАН ЗАГРУЗКИ С ЛОГО И ПОЛОСОЙ */}
       <AnimatePresence>
         {loading && (
           <motion.div className="loading-screen" exit={{ opacity: 0 }}>
@@ -109,7 +107,6 @@ function App() {
           <header className="fixed-header">
             <div></div>
             <div className="header-center">
-              {/* Вернули логотип 1.png */}
               {!imgErr ? <img src="1.png" className="app-logo" onError={()=>setImgErr(true)}/> : <Zap color="#8B5CF6"/>}
               <span className="header-title">Trainery</span>
             </div>
@@ -148,7 +145,6 @@ function App() {
               </motion.div>
             )}
 
-            {/* ОБНОВЛЕННЫЕ БАННЕРЫ ЗДОРОВЬЯ */}
             {activeTab === 'health' && (
               <motion.div key="health" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}>
@@ -158,15 +154,15 @@ function App() {
                 <motion.div variants={itemVars}>
                   <motion.div className="health-banner" whileTap={{scale:0.98}} style={{background:'linear-gradient(135deg, #FF9966, #FF5E62)'}}>
                     <div className="banner-anim-container"><div className="banner-decor bd-1"></div></div>
-                    <div className="health-text"><h3>{t('cal')}</h3></div><Utensils size={36}/>
+                    <div className="health-text"><h3>{t('cal')}</h3></div>
                   </motion.div>
                   <motion.div className="health-banner" whileTap={{scale:0.98}} style={{background:'linear-gradient(135deg, #F6D365, #FDA085)'}}>
                     <div className="banner-anim-container"><div className="banner-decor bd-2"></div></div>
-                    <div className="health-text"><h3>{t('cyc')}</h3></div><CalendarHeart size={36}/>
+                    <div className="health-text"><h3>{t('cyc')}</h3></div>
                   </motion.div>
                   <motion.div className="health-banner" whileTap={{scale:0.98}} style={{background:'linear-gradient(135deg, #a18cd1, #fbc2eb)'}}>
                     <div className="banner-anim-container"><div className="banner-decor bd-1" style={{left:-20, top:'auto', bottom:-20}}></div></div>
-                    <div className="health-text"><h3>{t('bod')}</h3></div><Scale size={36}/>
+                    <div className="health-text"><h3>{t('bod')}</h3></div>
                   </motion.div>
                 </motion.div>
               </motion.div>
@@ -218,15 +214,15 @@ function App() {
                     </motion.div>
                   </div>
 
-                  <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4>
+                  <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>{t('socials')}</h4>
                   <div className="menu-stack">
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://instagram.com', false)}>
+                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}>
                       <Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/>
                     </motion.div>
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery', true)}>
+                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery_community', true)}>
                       <Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/>
                     </motion.div>
-                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/juls', true)}>
+                    <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/julschannelua', true)}>
                       <Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/>
                     </motion.div>
                   </div>
