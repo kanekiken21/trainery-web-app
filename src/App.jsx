@@ -1,36 +1,35 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users, PawPrint } from 'lucide-react';
+import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users, Scale, CalendarHeart, Utensils } from 'lucide-react';
 import './App.css';
 
-const ADMIN_ID = 8297304095;
-
-const ultraSpring = { type: "spring", stiffness: 350, damping: 25, mass: 1 };
+const ADMIN_ID = 8297304095; 
+const spring = { type: "spring", stiffness: 350, damping: 30 };
 
 const T = {
   uk: {
-    hello: "Привіт", subtitle: "Твій особистий фітнес-простір ✨",
-    news_empty: "Тут поки тихо...", news_sub: "Але скоро з'являться гарячі новини 🔥",
-    m_title: "Програми ⚡️", m_empty: "Запис закрито 🍂", m_empty_sub: "Чекай на анонси нових марафонів!",
-    h_title: "Здоров'я ❤️", h_sub: "Твій контроль тіла",
-    profile: "Мій профіль", settings: "Налаштування", admin: "Адмін-панель",
-    copied: "Скопійовано!", theme: "Темна тема", lang: "English Language",
-    socials: "Спільнота", comm_channel_bot: "Канал Trainery", comm_channel_mom: "Канал Juls", insta: "Instagram",
-    card_cal: "Калорії", card_cal_sub: "Лічильник КБЖВ",
-    card_cycle: "Мій цикл", card_cycle_sub: "Календар та прогнози",
-    card_body: "Заміри тіла", card_body_sub: "Трекер прогресу"
+    hello: "Привіт", subtitle: "Твій простір сили ✨",
+    news_empty: "Тут поки тихо...", news_sub: "Але скоро будуть новини 🔥",
+    m_title: "Програми ⚡️", m_empty: "Запис закрито 🍂", m_empty_sub: "Чекай на анонси!",
+    h_title: "Здоров'я ❤️", h_sub: "Твій контроль",
+    profile: "Профіль", settings: "Налаштування", admin: "Адмін",
+    copied: "Скопійовано!", theme: "Темна тема", lang: "English",
+    socials: "Спільнота", comm_bot: "Канал Trainery", comm_mom: "Канал Juls", insta: "Instagram",
+    card_cal: "Калорії", card_cal_sub: "Лічильник",
+    card_cycle: "Цикл", card_cycle_sub: "Календар",
+    card_body: "Заміри", card_body_sub: "Прогрес"
   },
   en: {
-    hello: "Hello", subtitle: "Your personal fitness space ✨",
-    news_empty: "It's quiet here...", news_sub: "But hot news is coming soon 🔥",
-    m_title: "Programs ⚡️", m_empty: "Closed 🍂", m_empty_sub: "Wait for new marathon announcements!",
-    h_title: "Health ❤️", h_sub: "Body control",
-    profile: "My Profile", settings: "Settings", admin: "Admin Panel",
-    copied: "Copied!", theme: "Dark Mode", lang: "Українська мова",
-    socials: "Community", comm_channel_bot: "Trainery Channel", comm_channel_mom: "Juls Channel", insta: "Instagram",
-    card_cal: "Calories", card_cal_sub: "Nutrition tracker",
-    card_cycle: "My Cycle", card_cycle_sub: "Calendar & forecast",
-    card_body: "Body Size", card_body_sub: "Progress tracker"
+    hello: "Hello", subtitle: "Your power space ✨",
+    news_empty: "Quiet here...", news_sub: "News coming soon 🔥",
+    m_title: "Programs ⚡️", m_empty: "Closed 🍂", m_empty_sub: "Wait for announcements!",
+    h_title: "Health ❤️", h_sub: "Your control",
+    profile: "Profile", settings: "Settings", admin: "Admin",
+    copied: "Copied!", theme: "Dark Mode", lang: "Ukrainian",
+    socials: "Community", comm_bot: "Trainery Channel", comm_mom: "Juls Channel", insta: "Instagram",
+    card_cal: "Calories", card_cal_sub: "Counter",
+    card_cycle: "Cycle", card_cycle_sub: "Calendar",
+    card_body: "Body", card_body_sub: "Progress"
   }
 };
 
@@ -48,26 +47,22 @@ function App() {
   const t = (key) => T[lang][key];
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 2200);
+    setTimeout(() => setLoading(false), 2000);
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
     const tgUser = tg.initDataUnsafe?.user;
     setUser(tgUser || { first_name: 'Чемпіонка', username: 'fit_user', id: 8297304095 });
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.documentElement.setAttribute('data-theme', 'light');
   }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
-  const copyId = (e) => {
-    e.stopPropagation();
+  const copyId = () => {
     if (user?.id) {
       navigator.clipboard.writeText(user.id.toString());
       setCopied(true);
@@ -75,164 +70,166 @@ function App() {
     }
   };
 
-  const handleLink = (url, isTelegram = false) => {
-    if (isTelegram) window.Telegram.WebApp.openTelegramLink(url);
+  const handleLink = (url, isTg) => {
+    if (isTg) window.Telegram.WebApp.openTelegramLink(url);
     else window.Telegram.WebApp.openLink(url);
   };
-
-  const SpringButton = ({ children, onClick, className }) => (
-    <motion.button
-      whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }}
-      transition={ultraSpring} onClick={onClick} className={`spring-btn ${className || ''}`}
-    >
-      {children}
-    </motion.button>
-  );
 
   return (
     <>
       <AnimatePresence>
         {loading && (
-          <motion.div className="loading-screen" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.4 }}>
-             {!imgError.logo ? (
-               <motion.img src="1.png" className="loading-logo" initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: [1, 1.05, 1], opacity: 1 }} transition={{ repeat: Infinity, duration: 2 }} onError={() => setImgError(prev => ({...prev, logo: true}))} />
-             ) : (
-               <Zap size={64} color="#7B3494" />
-             )}
+          <motion.div className="loading-screen" exit={{ opacity: 0 }}>
+             <img src="1.png" className="loading-logo-img" onError={(e) => e.target.style.display='none'} />
           </motion.div>
         )}
       </AnimatePresence>
 
       <div className={`app-container ${isProfileOpen ? 'blurred' : ''}`}>
         
-        <div className="particles">
-          <div className="particle p1"></div>
-          <div className="particle p2"></div>
-          <div className="particle p3"></div>
+        {/* ПАРТИКЛЫ */}
+        <div className="particles-container">
+          <div className="blob blob-1"></div>
+          <div className="blob blob-2"></div>
+          <div className="blob blob-3"></div>
         </div>
 
+        {/* ХЕДЕР (НОВАЯ СТРУКТУРА) */}
         <header className="fixed-header">
-          <motion.div className="header-logo" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} transition={ultraSpring}>
-             {!imgError.logo ? <img src="1.png" className="app-logo" onError={() => setImgError(prev => ({...prev, logo: true}))}/> : <div className="app-logo-fallback"><Zap size={20} color="white"/></div>}
+          <div style={{width: 44}}></div> {/* Пустой блок для баланса */}
+          
+          <div className="header-center">
+             {!imgError.logo ? <img src="1.png" className="app-logo" onError={() => setImgError(p=>({...p, logo:true}))} /> : <Zap color="#7B3494"/>}
              <h1>Trainery</h1>
-          </motion.div>
-          <motion.div className="profile-bubble" whileTap={{ scale: 0.9 }} onClick={() => { setProfileOpen(true); setShowSettings(false); }}>
-             {user?.photo_url ? <img src={user.photo_url} /> : <User size={24} />}
-          </motion.div>
+          </div>
+
+          <div className="profile-btn-wrap">
+            <motion.div className="profile-bubble" whileTap={{ scale: 0.9 }} onClick={() => { setProfileOpen(true); setShowSettings(false); }}>
+               {user?.photo_url ? <img src={user.photo_url} /> : <User size={24} />}
+            </motion.div>
+          </div>
         </header>
 
+        {/* КОНТЕНТ */}
         <div className="content-area">
           <LayoutGroup>
             <AnimatePresence mode="wait">
               
               {activeTab === 'home' && (
-                <motion.div key="home" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={ultraSpring} className="page">
+                <motion.div key="home" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={spring} className="page">
                   <div className="greeting-block">
-                    <AnimatePresence mode="wait">
-                      <motion.h2 key={lang} initial={{opacity:0, y:5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} transition={ultraSpring}>{t('hello')}, {user?.first_name}! 👋</motion.h2>
-                    </AnimatePresence>
+                    <h2>{t('hello')}, {user?.first_name}! 👋</h2>
                     <p>{t('subtitle')}</p>
                   </div>
                   <div className="empty-card glass-panel">
                       {!imgError.chibi ? (
-                        <motion.img src="2.png" className="chibi-img" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} onError={() => setImgError(prev => ({...prev, chibi: true}))} />
-                      ) : (
-                        <div className="icon-fallback"><Sparkles size={50} color="#7B3494"/></div>
-                      )}
+                        <motion.img src="2.png" className="chibi-img" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} onError={() => setImgError(p=>({...p, chibi:true}))} />
+                      ) : <Sparkles size={60} color="#7B3494"/>}
                       <div className="empty-text"><h3>{t('news_empty')}</h3><p>{t('news_sub')}</p></div>
                   </div>
                 </motion.div>
               )}
 
               {activeTab === 'marathons' && (
-                <motion.div key="marathons" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={ultraSpring} className="page">
+                <motion.div key="marathons" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={spring} className="page">
                   <h2 className="page-title">{t('m_title')}</h2>
                   <motion.div className="empty-card glass-panel" style={{ minHeight: '320px' }}>
                        {!imgError.premium ? (
-                         <motion.img src="1.png" className="prem-img" style={{borderRadius: 16}} animate={{ rotate: [0, 3, -3, 0] }} transition={{ repeat: Infinity, duration: 6 }} onError={() => setImgError(prev => ({...prev, premium: true}))} />
-                       ) : (
-                         <div className="icon-fallback"><Zap size={60} /></div>
-                       )}
+                         <motion.img src="1.png" className="prem-img" style={{borderRadius: 16}} animate={{ rotate: [0, 3, -3, 0] }} transition={{ repeat: Infinity, duration: 6 }} onError={() => setImgError(p=>({...p, premium:true}))} />
+                       ) : <Zap size={60} color="#7B3494"/>}
                        <div className="empty-text"><h3>{t('m_empty')}</h3><p>{t('m_empty_sub')}</p></div>
                   </motion.div>
                 </motion.div>
               )}
 
               {activeTab === 'health' && (
-                <motion.div key="health" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={ultraSpring} className="page">
+                <motion.div key="health" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={spring} className="page">
                   <h2 className="page-title">{t('h_title')}</h2>
-                  <motion.div whileTap={{ scale: 0.98 }} className="health-card glass-panel" style={{background: 'linear-gradient(135deg, #FF9966 0%, #FF5E62 100%)'}}>
-                    <div className="h-text"><h3>{t('card_cal')}</h3><p>{t('card_cal_sub')}</p></div><div className="h-icon">🥗</div>
+                  
+                  <motion.div whileTap={{scale:0.98}} className="health-card glass-panel" style={{background:'linear-gradient(135deg, #FF9966, #FF5E62)'}}>
+                    <div className="h-text"><h3>{t('card_cal')}</h3><p>{t('card_cal_sub')}</p></div>
+                    <Utensils size={32} />
                   </motion.div>
-                  <motion.div whileTap={{ scale: 0.98 }} className="health-card glass-panel" style={{background: 'linear-gradient(135deg, #F6D365 0%, #FDA085 100%)'}}>
-                    <div className="h-text"><h3>{t('card_cycle')}</h3><p>{t('card_cycle_sub')}</p></div><div className="h-icon">🌸</div>
+
+                  <motion.div whileTap={{scale:0.98}} className="health-card glass-panel" style={{background:'linear-gradient(135deg, #F6D365, #FDA085)'}}>
+                    <div className="h-text"><h3>{t('card_cycle')}</h3><p>{t('card_cycle_sub')}</p></div>
+                    <CalendarHeart size={32} />
                   </motion.div>
-                  <motion.div whileTap={{ scale: 0.98 }} className="health-card glass-panel" style={{background: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)'}}>
-                    <div className="h-text"><h3>{t('card_body')}</h3><p>{t('card_body_sub')}</p></div><div className="h-icon">📏</div>
+
+                  <motion.div whileTap={{scale:0.98}} className="health-card glass-panel" style={{background:'linear-gradient(135deg, #84fab0, #8fd3f4)'}}>
+                    <div className="h-text"><h3>{t('card_body')}</h3><p>{t('card_body_sub')}</p></div>
+                    <Scale size={32} />
                   </motion.div>
                 </motion.div>
               )}
+
             </AnimatePresence>
           </LayoutGroup>
         </div>
 
         <div className="bottom-nav-container">
-          <motion.div className="nav-island" initial={{ y: 50 }} animate={{ y: 0 }} transition={ultraSpring}>
-            {['home', 'marathons', 'health'].map((tab) => (
-              <button key={tab} onClick={() => setActiveTab(tab)} className={activeTab === tab ? 'active' : ''}>
-                {tab === 'home' && <Home size={26} />}
-                {tab === 'marathons' && <Zap size={26} />}
-                {tab === 'health' && <Activity size={26} />}
-                {activeTab === tab && <motion.div layoutId="bubble" className="nav-bg-bubble" transition={ultraSpring} />}
-              </button>
-            ))}
-          </motion.div>
+          <div className="nav-island">
+            <button onClick={() => setActiveTab('home')} className={activeTab === 'home' ? 'active' : ''}><Home size={26} />{activeTab==='home'&&<motion.div layoutId="bub" className="nav-bg-bubble"/>}</button>
+            <button onClick={() => setActiveTab('marathons')} className={activeTab === 'marathons' ? 'active' : ''}><Zap size={26} />{activeTab==='marathons'&&<motion.div layoutId="bub" className="nav-bg-bubble"/>}</button>
+            <button onClick={() => setActiveTab('health')} className={activeTab === 'health' ? 'active' : ''}><Activity size={26} />{activeTab==='health'&&<motion.div layoutId="bub" className="nav-bg-bubble"/>}</button>
+          </div>
         </div>
       </div>
 
       <AnimatePresence>
         {isProfileOpen && (
           <>
-            <motion.div className="backdrop" onClick={() => setProfileOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+            <motion.div className="backdrop" onClick={() => setProfileOpen(false)} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} />
             <motion.div 
-              className="modal glass-panel" layout
-              initial={{ y: '110%', scale: 0.96 }} animate={{ y: 0, scale: 1 }} exit={{ y: '110%', scale: 0.96 }}
-              transition={ultraSpring}
+              className="modal" 
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} 
+              transition={spring}
               drag="y" dragConstraints={{ top: 0 }} dragElastic={0.1}
               onDragEnd={(_, info) => { if (info.offset.y > 100) setProfileOpen(false) }}
             >
-              <div className="modal-content-wrapper">
-                <div className="modal-top" onClick={() => setProfileOpen(false)}><div className="bar"></div></div>
+              {/* ФИКСИРОВАННАЯ ШАПКА МОДАЛКИ */}
+              <div className="modal-header-fixed" onClick={() => setProfileOpen(false)}>
+                <div className="bar"></div>
+              </div>
+
+              {/* СКРОЛЛЯЩИЙСЯ КОНТЕНТ */}
+              <div className="modal-scrollable-content">
                 <AnimatePresence mode="wait" initial={false}>
                   {!showSettings ? (
-                    <motion.div key="prof" initial={{opacity:0, x:-30}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-30}} transition={ultraSpring} className="profile-content">
-                      <div className="profile-header-center">
-                        <div className="big-avatar-wrapper">
-                           <div className="big-avatar">{user?.photo_url ? <img src={user.photo_url}/> : <User size={50} />}</div>
+                    <motion.div key="p" initial={{x:-50, opacity:0}} animate={{x:0, opacity:1}} exit={{x:-50, opacity:0}} transition={spring} className="profile-center">
+                      <div className="avatar-glow-container">
+                        <div className="avatar-glow"></div>
+                        <div className="avatar-img-box">
+                          {user?.photo_url ? <img src={user.photo_url}/> : <User size={40}/>}
                         </div>
-                        <h3>{user?.first_name}</h3>
-                        <div className="username-tag">@{user?.username || 'user'}</div>
-                        <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}><span>ID: {user?.id}</span>{copied ? <span style={{color:'#7B3494', fontWeight:'bold', marginLeft:5}}>OK</span> : <Copy size={14} style={{marginLeft:5, opacity:0.5}}/>}</motion.div>
                       </div>
-                      <div className="menu-list">
-                        <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={() => setShowSettings(true)}><Settings size={22} /> {t('settings')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                        {user?.id === ADMIN_ID && <motion.div whileTap={{scale:0.98}} className="menu-item admin-item"><Lock size={22} /> {t('admin')}</motion.div>}
+                      <h3>{user?.first_name}</h3>
+                      <div className="username-tag">@{user?.username || 'user'}</div>
+                      <div className="id-pill" onClick={copyId}><span>ID: {user?.id}</span> {copied ? <span style={{color:'green'}}>OK</span> : <Copy size={12}/>}</div>
+                      
+                      <div className="menu-stack" style={{marginTop: 30}}>
+                        <div className="menu-btn" onClick={() => setShowSettings(true)}><Settings size={20}/> {t('settings')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.5}}/></div>
+                        {user?.id === ADMIN_ID && <div className="menu-btn admin-item"><Lock size={20}/> {t('admin')}</div>}
                       </div>
                     </motion.div>
                   ) : (
-                    <motion.div key="sett" initial={{opacity:0, x:30}} animate={{opacity:1, x:0}} exit={{opacity:0, x:30}} transition={ultraSpring} className="settings-content">
-                      <h3 style={{marginBottom: 20, textAlign: 'center'}}>{t('settings')}</h3>
-                      <div className="settings-group">
-                          <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={toggleTheme}>{theme === 'light' ? <Moon size={22}/> : <Sun size={22}/>}{t('theme')}<div className="toggle-switch" data-active={theme === 'dark'}></div></motion.div>
-                          <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={() => setLang(lang === 'uk' ? 'en' : 'uk')}><Globe size={22}/>{t('lang')}<div className="lang-badge">{lang.toUpperCase()}</div></motion.div>
+                    <motion.div key="s" initial={{x:50, opacity:0}} animate={{x:0, opacity:1}} exit={{x:50, opacity:0}} transition={spring} className="settings-content">
+                      <h3 style={{textAlign:'center', marginBottom: 20}}>{t('settings')}</h3>
+                      <div className="menu-stack">
+                        <div className="menu-btn" onClick={toggleTheme}>{theme==='light'?<Moon size={20}/>:<Sun size={20}/>} {t('theme')} <div className="toggle-switch" data-active={theme==='dark'}></div></div>
+                        <div className="menu-btn" onClick={() => setLang(lang==='uk'?'en':'uk')}><Globe size={20}/> {t('lang')} <div className="lang-badge">{lang.toUpperCase()}</div></div>
                       </div>
-                      <h4 style={{margin: '25px 0 10px', opacity: 0.5, fontSize: 14, paddingLeft: 10}}>{t('socials')}</h4>
-                      <div className="settings-group">
-                          <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={22} color="#E1306C" /> {t('insta')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                          <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/trainery_community', true)}><Users size={22} color="#0088cc" /> {t('comm_channel_bot')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
-                          <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/julschannelua', true)}><Send size={22} color="#0088cc" /> {t('comm_channel_mom')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/></motion.div>
+                      
+                      <h4 style={{marginTop: 20, marginBottom: 10, opacity: 0.5, fontSize: 13, paddingLeft: 10}}>{t('socials')}</h4>
+                      <div className="menu-stack">
+                        <div className="menu-btn social-btn" onClick={() => handleLink('https://inst', false)}><Instagram size={20} color="#E1306C"/> {t('insta')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/></div>
+                        <div className="menu-btn social-btn" onClick={() => handleLink('https://tg1', true)}><Users size={20} color="#0088cc"/> {t('comm_bot')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/></div>
+                        <div className="menu-btn social-btn" onClick={() => handleLink('https://tg2', true)}><Send size={20} color="#0088cc"/> {t('comm_mom')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/></div>
                       </div>
-                      <SpringButton className="back-btn" onClick={() => setShowSettings(false)}><ArrowLeft size={22} /> Назад</SpringButton>
+
+                      <motion.div className="back-btn" whileTap={{scale:0.95}} onClick={() => setShowSettings(false)}>
+                        <ArrowLeft size={20}/> Назад
+                      </motion.div>
                     </motion.div>
                   )}
                 </AnimatePresence>
