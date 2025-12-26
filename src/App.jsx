@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users, PawPrint } from 'lucide-react';
+import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users } from 'lucide-react';
 import './App.css';
 
 const ADMIN_ID = 8297304095;
 
-// 🔥 НОВА, БІЛЬШ ПРУЖИНА ФІЗИКА
-const ultraSpring = { type: "spring", stiffness: 400, damping: 25, mass: 1 };
+// 🔥 НАЙКРАЩА ФІЗИКА (ПРУЖИНА)
+const ultraSpring = { type: "spring", stiffness: 350, damping: 25, mass: 1 };
 
 const T = {
   uk: {
@@ -43,12 +43,10 @@ function App() {
   const t = (key) => T[lang][key];
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 2200);
+    setTimeout(() => setLoading(false), 2000);
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-    // Більше не блокуємо body тут, це робить CSS
-    // document.body.style.overflow = 'hidden';
 
     const tgUser = tg.initDataUnsafe?.user;
     setUser(tgUser || { first_name: 'Чемпіонка', username: 'fit_user', id: 8297304095 });
@@ -102,7 +100,7 @@ function App() {
                  onError={() => setImgError(prev => ({...prev, logo: true}))}
                />
              ) : (
-               <Zap size={64} color="#7B3494" />
+               <Zap size={80} color="#7B3494" />
              )}
           </motion.div>
         )}
@@ -110,16 +108,18 @@ function App() {
 
       <div className={`app-container ${isProfileOpen ? 'blurred' : ''}`}>
 
+        {/* ХЕДЕР ТЕПЕР ОКРЕМО ВІД КОНТЕНТУ */}
         <header className="fixed-header">
           <motion.div className="header-logo" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}} transition={ultraSpring}>
-             {!imgError.logo ? <img src="1.png" className="app-logo" onError={() => setImgError(prev => ({...prev, logo: true}))}/> : <div className="app-logo-fallback"><Zap size={20} color="white"/></div>}
+             {!imgError.logo ? <img src="1.png" className="app-logo" onError={() => setImgError(prev => ({...prev, logo: true}))}/> : <div className="app-logo-fallback"><Zap size={24} color="white"/></div>}
              <h1>Trainery</h1>
           </motion.div>
           <motion.div className="profile-bubble" whileTap={{ scale: 0.9 }} onClick={() => { setProfileOpen(true); setShowSettings(false); }}>
-             {user?.photo_url ? <img src={user.photo_url} /> : <User size={24} />}
+             {user?.photo_url ? <img src={user.photo_url} /> : <User size={26} />}
           </motion.div>
         </header>
 
+        {/* КОНТЕНТ-ЗОНА З ВІДСТУПОМ ЗВЕРХУ */}
         <div className="content-area">
           <LayoutGroup>
             <AnimatePresence mode="wait">
@@ -135,7 +135,7 @@ function App() {
                       {!imgError.chibi ? (
                         <motion.img src="2.png" className="chibi-img" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} onError={() => setImgError(prev => ({...prev, chibi: true}))} />
                       ) : (
-                        <div className="icon-fallback"><Sparkles size={50} color="#7B3494"/></div>
+                        <div className="icon-fallback"><Sparkles size={60} /></div>
                       )}
                       <div className="empty-text"><h3>{t('news_empty')}</h3><p>{t('news_sub')}</p></div>
                   </div>
@@ -147,10 +147,11 @@ function App() {
                   <h2 className="page-title">{t('m_title')}</h2>
                   <motion.div className="empty-card glass-panel" style={{ minHeight: '320px' }}>
                        {!imgError.premium ? (
-                         <motion.img src="3.png" className="prem-img" style={{borderRadius: 16}} animate={{ rotate: [0, 3, -3, 0] }} transition={{ repeat: Infinity, duration: 6 }} onError={() => setImgError(prev => ({...prev, premium: true}))} />
+                         // ТУТ ТЕПЕР ПРАВИЛЬНЕ ЛОГО 1.png
+                         <motion.img src="1.png" className="prem-img" style={{borderRadius: 16}} animate={{ rotate: [0, 3, -3, 0] }} transition={{ repeat: Infinity, duration: 6 }} onError={() => setImgError(prev => ({...prev, premium: true}))} />
                        ) : (
-                         // Тут використано іконку, яка буде світлішати в темній темі завдяки CSS
-                         <div className="icon-fallback"><PawPrint size={50} /></div>
+                         // ТУТ ТЕПЕР ПРАВИЛЬНА ІКОНКА Zap
+                         <div className="icon-fallback"><Zap size={60} /></div>
                        )}
                        <div className="empty-text"><h3>{t('m_empty')}</h3><p>{t('m_empty_sub')}</p></div>
                   </motion.div>
@@ -159,7 +160,7 @@ function App() {
 
               {activeTab === 'health' && (
                 <motion.div key="health" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={ultraSpring} className="page center-page">
-                  <motion.div className="placeholder-circle" animate={{ boxShadow: ["0 0 0 0px rgba(123, 52, 148, 0.2)", "0 0 0 20px rgba(123, 52, 148, 0)"] }} transition={{ repeat: Infinity, duration: 2 }}><Lock size={32} color="#7B3494" /></motion.div>
+                  <motion.div className="placeholder-circle" animate={{ boxShadow: ["0 0 0 0px rgba(123, 52, 148, 0.2)", "0 0 0 30px rgba(123, 52, 148, 0)"] }} transition={{ repeat: Infinity, duration: 2 }}><Lock size={40} color="#7B3494" /></motion.div>
                   <h3>{t('h_title')}</h3><p>{t('h_sub')}</p>
                 </motion.div>
               )}
@@ -171,9 +172,9 @@ function App() {
           <motion.div className="nav-island" initial={{ y: 50 }} animate={{ y: 0 }} transition={ultraSpring}>
             {['home', 'marathons', 'health'].map((tab) => (
               <button key={tab} onClick={() => setActiveTab(tab)} className={activeTab === tab ? 'active' : ''}>
-                {tab === 'home' && <Home size={24} />}
-                {tab === 'marathons' && <Zap size={24} />}
-                {tab === 'health' && <Activity size={24} />}
+                {tab === 'home' && <Home size={26} />}
+                {tab === 'marathons' && <Zap size={26} />}
+                {tab === 'health' && <Activity size={26} />}
                 {activeTab === tab && <motion.div layoutId="bubble" className="nav-bg-bubble" transition={ultraSpring} />}
               </button>
             ))}
@@ -185,13 +186,12 @@ function App() {
         {isProfileOpen && (
           <>
             <motion.div className="backdrop" onClick={() => setProfileOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
-            {/* МОДАЛКА З НОВОЮ АНІМАЦІЄЮ ПОЯВИ */}
             <motion.div
               className="modal glass-panel"
               layout
-              initial={{ y: '110%', scale: 0.95 }} // Починаємо трохи нижче і менше
-              animate={{ y: 0, scale: 1 }} // Виїжджаємо і збільшуємось
-              exit={{ y: '110%', scale: 0.95 }}
+              initial={{ y: '110%', scale: 0.96 }}
+              animate={{ y: 0, scale: 1 }}
+              exit={{ y: '110%', scale: 0.96 }}
               transition={ultraSpring}
               drag="y" dragConstraints={{ top: 0 }} dragElastic={0.1}
               onDragEnd={(_, info) => { if (info.offset.y > 100) setProfileOpen(false) }}
@@ -201,66 +201,64 @@ function App() {
 
                 <AnimatePresence mode="wait" initial={false}>
                   {!showSettings ? (
-                    // ПРОФИЛЬ
                     <motion.div
                       key="prof"
-                      initial={{opacity:0, x:-50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}}
+                      initial={{opacity:0, x:-30}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-30}}
                       transition={ultraSpring}
                       className="profile-content"
                     >
                       <div className="profile-header-center">
-                        <div className="big-avatar">{user?.photo_url ? <img src={user.photo_url}/> : <User size={48} />}</div>
+                        <div className="big-avatar">{user?.photo_url ? <img src={user.photo_url}/> : <User size={50} />}</div>
                         <h3>{user?.first_name}</h3>
                         <div className="username-tag">@{user?.username || 'user'}</div>
-                        <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}><span>ID: {user?.id}</span>{copied ? <span style={{color:'#7B3494', fontWeight:'bold', marginLeft:5}}>OK</span> : <Copy size={12} style={{marginLeft:5, opacity:0.5}}/>}</motion.div>
+                        <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}><span>ID: {user?.id}</span>{copied ? <span style={{color:'#7B3494', fontWeight:'bold', marginLeft:5}}>OK</span> : <Copy size={14} style={{marginLeft:5, opacity:0.5}}/>}</motion.div>
                       </div>
 
                       <div className="menu-list">
                         <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={() => setShowSettings(true)}>
-                          <Settings size={20} /> {t('settings')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                          <Settings size={22} /> {t('settings')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/>
                         </motion.div>
-                        {user?.id === ADMIN_ID && <motion.div whileTap={{scale:0.98}} className="menu-item admin-item"><Lock size={20} /> {t('admin')}</motion.div>}
+                        {user?.id === ADMIN_ID && <motion.div whileTap={{scale:0.98}} className="menu-item admin-item"><Lock size={22} /> {t('admin')}</motion.div>}
                       </div>
                     </motion.div>
                   ) : (
-                    // НАСТРОЙКИ
                     <motion.div
                       key="sett"
-                      initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}}
+                      initial={{opacity:0, x:30}} animate={{opacity:1, x:0}} exit={{opacity:0, x:30}}
                       transition={ultraSpring}
                       className="settings-content"
                     >
-                      <h3 style={{marginBottom: 15, textAlign: 'center'}}>{t('settings')}</h3>
+                      <h3 style={{marginBottom: 20, textAlign: 'center'}}>{t('settings')}</h3>
 
                       <div className="settings-group">
                           <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={toggleTheme}>
-                          {theme === 'light' ? <Moon size={20}/> : <Sun size={20}/>}
+                          {theme === 'light' ? <Moon size={22}/> : <Sun size={22}/>}
                           {t('theme')}
                           <div className="toggle-switch" data-active={theme === 'dark'}></div>
                           </motion.div>
 
                           <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={() => setLang(lang === 'uk' ? 'en' : 'uk')}>
-                          <Globe size={20}/>
+                          <Globe size={22}/>
                           {t('lang')}
                           <div className="lang-badge">{lang.toUpperCase()}</div>
                           </motion.div>
                       </div>
 
-                      <h4 style={{margin: '20px 0 10px', opacity: 0.5, fontSize: 13, paddingLeft: 10}}>{t('socials')}</h4>
+                      <h4 style={{margin: '25px 0 10px', opacity: 0.5, fontSize: 14, paddingLeft: 10}}>{t('socials')}</h4>
                       <div className="settings-group">
                           <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}>
-                              <Instagram size={20} color="#E1306C" /> {t('insta')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                              <Instagram size={22} color="#E1306C" /> {t('insta')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/>
                           </motion.div>
                           <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/trainery_community', true)}>
-                              <Users size={20} color="#0088cc" /> {t('comm_channel_bot')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                              <Users size={22} color="#0088cc" /> {t('comm_channel_bot')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/>
                           </motion.div>
                           <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/julschannelua', true)}>
-                              <Send size={20} color="#0088cc" /> {t('comm_channel_mom')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                              <Send size={22} color="#0088cc" /> {t('comm_channel_mom')} <ChevronRight size={18} style={{marginLeft:'auto', opacity:0.3}}/>
                           </motion.div>
                       </div>
 
                       <SpringButton className="back-btn" onClick={() => setShowSettings(false)}>
-                        <ArrowLeft size={20} /> Назад
+                        <ArrowLeft size={22} /> Назад
                       </SpringButton>
                     </motion.div>
                   )}

@@ -3,16 +3,16 @@
   --card: #FFFFFF;
   --text: #000000;
   --text-sec: #8A8A8E;
-  --island-bg: rgba(255, 255, 255, 0.9);
-  --border: rgba(0, 0, 0, 0.05);
+  --island-bg: rgba(255, 255, 255, 0.95);
+  --border: rgba(0, 0, 0, 0.08);
   --btn-bg: #E5E5EA;
   --accent: #7B3494;
-  --accent-glow: rgba(123, 52, 148, 0.35);
+  --accent-glow: rgba(123, 52, 148, 0.4);
   --radius: 32px;
 
-  /* ВАЖЛИВО: Динамічний відступ для "чубчика" iPhone */
-  --safe-top: var(--tg-safe-area-inset-top, 20px);
-  --header-height: 60px;
+  /* Надійний відступ для "чубчика" + запас */
+  --safe-top: max(var(--tg-safe-area-inset-top, 0px), 25px);
+  --header-height: 70px; /* Фіксована висота хедера */
 }
 
 [data-theme="dark"] {
@@ -20,29 +20,26 @@
   --card: #151517;
   --text: #FFFFFF;
   --text-sec: #9E9E9E;
-  --island-bg: rgba(30, 30, 30, 0.85);
-  --border: rgba(255, 255, 255, 0.12);
+  --island-bg: rgba(30, 30, 30, 0.9);
+  --border: rgba(255, 255, 255, 0.15);
   --btn-bg: #2C2C2E;
-  --accent-glow: rgba(123, 52, 148, 0.5);
+  --accent-glow: rgba(123, 52, 148, 0.6);
 }
 
-/* ГЛОБАЛЬНИЙ ФІКС СКРОЛУ */
-html, body {
-  height: 100%; /* Фіксуємо висоту */
+/* ГЛОБАЛЬНІ НАЛАШТУВАННЯ */
+html, body, #root {
+  height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Забороняємо скрол сторінки */
+  overflow: hidden; /* Скрол тільки всередині контейнера */
   background: var(--bg);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", sans-serif;
-  user-select: none;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.4s ease;
+  color: var(--text); /* Основний колір тексту */
 }
 
-#root { height: 100%; }
-
-/* ФОНОВІ ПЛЯМИ (Атмосфера) */
+/* ГОЛОВНИЙ КОНТЕЙНЕР */
 .app-container {
   height: 100%;
   display: flex;
@@ -53,10 +50,17 @@ html, body {
   transition: filter 0.3s ease, transform 0.3s ease;
 }
 
+.app-container.blurred {
+  filter: blur(12px) brightness(0.9);
+  transform: scale(0.96);
+  pointer-events: none;
+}
+
+/* ФОНОВА АТМОСФЕРА */
 .app-container::before {
-  content: ''; position: absolute; top: -120px; left: -100px;
-  width: 350px; height: 350px; background: var(--accent-glow);
-  filter: blur(90px); opacity: 0.5; border-radius: 50%; z-index: -1; pointer-events: none;
+  content: ''; position: absolute; top: -150px; left: -150px;
+  width: 400px; height: 400px; background: var(--accent-glow);
+  filter: blur(100px); opacity: 0.4; border-radius: 50%; z-index: -1; pointer-events: none;
 }
 
 /* ЗАВАНТАЖЕННЯ */
@@ -65,157 +69,144 @@ html, body {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .loading-logo {
-  width: 90px; height: 90px; border-radius: 22px;
-  box-shadow: 0 0 40px var(--accent-glow); object-fit: cover;
+  width: 100px; height: 100px; object-fit: contain;
+  filter: drop-shadow(0 0 20px var(--accent-glow));
 }
 
-/* --- ХЕДЕР (ФІКС БЕЗПЕЧНОЇ ЗОНИ) --- */
+/* --- ХЕДЕР (НОВА ВЕРСІЯ) --- */
 .fixed-header {
-  /* Відступ зверху = безпечна зона + трохи місця */
-  padding-top: calc(var(--safe-top) + 10px);
-  padding-bottom: 10px;
-  padding-left: 24px;
-  padding-right: 24px;
+  position: fixed; top: 0; left: 0; right: 0;
+  /* Відступ зверху = безпечна зона + фіксований відступ */
+  padding: var(--safe-top) 24px 10px 24px;
+  height: var(--header-height);
   display: flex; justify-content: space-between; align-items: center;
   z-index: 50;
-  height: var(--header-height);
-  box-sizing: content-box; /* Щоб padding не з'їдав висоту */
+  box-sizing: border-box; /* Щоб padding був всередині висоти */
+  background: transparent; /* Прозорий фон */
 }
 
 .header-logo { display: flex; align-items: center; gap: 12px; }
 
-/* ЛОГОТИП: Прибираємо рамку, додаємо світіння в темній темі */
+/* ЛОГОТИП: Без квадрата, тільки світіння */
 .app-logo {
-  width: 38px; height: 38px;
+  width: 40px; height: 40px;
   object-fit: contain;
-  /* У світлій темі просто лого */
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); /* М'яка тінь у світлій темі */
   transition: filter 0.3s ease;
 }
-
-/* У ТЕМНІЙ темі додаємо біле світіння навколо лого */
 [data-theme="dark"] .app-logo {
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); /* Біле світіння у темній */
 }
 
-.app-logo-fallback { width: 38px; height: 38px; border-radius: 10px; background: var(--accent); display: flex; align-items: center; justify-content: center; }
-/* Збільшив шрифт заголовка для балансу */
+.app-logo-fallback { width: 40px; height: 40px; border-radius: 12px; background: var(--accent); display: flex; align-items: center; justify-content: center; }
 .header-logo h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
 
 .profile-bubble {
-  width: 46px; height: 46px; background: rgba(255,255,255,0.1); border-radius: 50%;
+  width: 48px; height: 48px; background: rgba(255,255,255,0.1); border-radius: 50%;
   display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer;
   border: 1px solid var(--border); backdrop-filter: blur(10px);
 }
 .profile-bubble img { width: 100%; height: 100%; object-fit: cover; }
 
-/* КОНТЕНТ */
+/* --- КОНТЕНТ (НОВА ВЕРСІЯ) --- */
 .content-area {
-  flex: 1; position: relative;
-  /* Відступ зверху, щоб контент не залазив під хедер */
-  margin-top: 10px;
+  flex: 1;
+  display: flex; flex-direction: column;
+  /* Жорсткий відступ зверху, рівний висоті хедера */
+  padding-top: var(--header-height);
+  overflow-y: auto; /* Скрол тут */
+  scrollbar-width: none;
 }
 
-/* Сторінка скролиться всередині, а не весь боді */
+/* Сторінка тепер просто блок всередині */
 .page {
-  position: absolute; inset: 0;
-  overflow-y: auto;
-  padding: 0 24px 130px 24px; /* Padding з боків і знизу */
-  scrollbar-width: none; will-change: transform;
+  flex: 1;
+  padding: 20px 24px 130px 24px; /* Відступи для контенту */
+  display: flex; flex-direction: column;
+  will-change: transform, opacity;
 }
+
+/* ЯВНЕ ЗАВДАННЯ КОЛЬОРІВ ТЕКСТУ */
+.greeting-block { margin-bottom: 30px; }
+.greeting-block h2 { margin: 0 0 8px; font-size: 34px; letter-spacing: -0.5px; line-height: 1.1; color: var(--text); }
+.greeting-block p { color: var(--text-sec); font-size: 17px; margin: 0; font-weight: 500; }
+.page-title { font-size: 34px; font-weight: 800; margin: 0 0 20px; color: var(--text); }
 
 .glass-panel {
   background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1); overflow: hidden;
 }
-
-.greeting-block { margin-bottom: 25px; padding-left: 5px; }
-.greeting-block h2 { margin: 10px 0 5px; font-size: 34px; letter-spacing: -0.5px; line-height: 1.1; }
-.greeting-block p { color: var(--text-sec); font-size: 17px; margin: 0; font-weight: 500; }
 
 .empty-card {
-  min-height: 280px; padding: 40px 20px; text-align: center;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 20px;
+  min-height: 300px; padding: 40px 24px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-.chibi-img { width: 160px; height: 160px; margin-bottom: 20px; object-fit: contain; display: block; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.15)); }
-.prem-img { width: 110px; height: 110px; object-fit: contain; display: block; margin-bottom: 10px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2)); }
+.chibi-img { width: 180px; height: 180px; margin-bottom: 25px; object-fit: contain; display: block; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2)); }
+.prem-img { width: 120px; height: 120px; object-fit: contain; display: block; margin-bottom: 15px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.25)); }
 
-/* Фікс видимості іконок-заглушок у темній темі */
-.icon-fallback { margin-bottom: 20px; padding: 25px; background: var(--accent-glow); border-radius: 50%; transition: 0.3s; }
-[data-theme="dark"] .icon-fallback svg {
-    color: #E0B0FF; /* Світло-фіолетовий для темної теми */
-    filter: drop-shadow(0 0 5px rgba(224, 176, 255, 0.5));
-}
+.empty-text h3 { font-size: 22px; margin: 0 0 8px; font-weight: 700; color: var(--text); }
+.empty-text p { font-size: 16px; color: var(--text-sec); margin: 0; line-height: 1.4; }
+
+.icon-fallback { margin-bottom: 25px; padding: 30px; background: var(--accent-glow); border-radius: 50%; transition: 0.3s; }
+[data-theme="dark"] .icon-fallback svg { color: #E0B0FF; filter: drop-shadow(0 0 8px rgba(224, 176, 255, 0.6)); }
 
 /* НИЖНЄ МЕНЮ */
 .bottom-nav-container { position: fixed; bottom: 35px; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; z-index: 100; }
 .nav-island {
   pointer-events: auto; background: var(--island-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-  padding: 6px; border-radius: 100px; display: flex; gap: 10px;
+  padding: 6px; border-radius: 100px; display: flex; gap: 12px;
   box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3); border: 1px solid var(--border);
 }
 .nav-island button { background: none; border: none; width: 64px; height: 64px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; color: #999; cursor: pointer; }
 .nav-island button.active { color: var(--accent); }
 .nav-bg-bubble { position: absolute; inset: 0; background: var(--card); border-radius: 50%; z-index: -1; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 
-/* --- МОДАЛКА (ПРУЖИНИСТА АНІМАЦІЯ) --- */
+/* --- МОДАЛКА --- */
 .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
-
 .modal {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  padding: 0; /* Padding всередині обгортки */
-  z-index: 201; color: var(--text);
+  position: fixed; bottom: 0; left: 0; right: 0; padding: 0; z-index: 201; color: var(--text);
   border-radius: 40px 40px 0 0; background: var(--card);
-  box-shadow: 0 -20px 60px rgba(0,0,0,0.3);
-  max-height: 90vh; /* Трохи вище */
-  overflow: hidden;
+  box-shadow: 0 -20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow: hidden;
 }
-
-/* Обгортка для контенту модалки */
-.modal-content-wrapper {
-  padding: 20px 24px 60px;
-  overflow-y: auto;
-  max-height: 90vh;
-  scrollbar-width: none;
-}
-
+.modal-content-wrapper { padding: 20px 24px 60px; overflow-y: auto; max-height: 90vh; scrollbar-width: none; }
 .modal-top { display: flex; justify-content: center; padding-bottom: 25px; cursor: pointer; position: sticky; top: 0; background: var(--card); z-index: 10; }
 .bar { width: 44px; height: 5px; background: var(--text-sec); opacity: 0.2; border-radius: 10px; }
 
-/* ПРОФІЛЬ */
+/* ПРОФИЛЬ */
 .profile-content, .settings-content { display: flex; flex-direction: column; width: 100%; padding-bottom: 20px; }
 .profile-header-center { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; margin-bottom: 35px; }
 .big-avatar {
-  width: 110px; height: 110px; background: var(--bg); border-radius: 50%; margin-bottom: 16px;
+  width: 120px; height: 120px; background: var(--bg); border-radius: 50%; margin-bottom: 20px;
   overflow: hidden; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 15px 40px var(--accent-glow); border: 4px solid var(--card);
+  box-shadow: 0 20px 50px var(--accent-glow); border: 4px solid var(--card);
 }
 .big-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-header-center h3 { margin: 0 0 6px; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-.username-tag { color: var(--text-sec); font-size: 16px; margin-bottom: 12px; font-weight: 500; }
-
+.profile-header-center h3 { margin: 0 0 8px; font-size: 30px; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
+.username-tag { color: var(--text-sec); font-size: 17px; margin-bottom: 16px; font-weight: 500; }
 .id-pill {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  background: var(--bg); padding: 8px 16px; border-radius: 20px;
-  font-size: 13px; color: var(--text-sec); cursor: pointer; border: 1px solid var(--border); transition: 0.2s;
+  background: var(--bg); padding: 10px 18px; border-radius: 24px;
+  font-size: 14px; color: var(--text-sec); cursor: pointer; border: 1px solid var(--border); transition: 0.2s;
 }
 
-.menu-list, .settings-group { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-bottom: 15px; }
+/* МЕНЮ ТА НАЛАШТУВАННЯ */
+.menu-list, .settings-group { display: flex; flex-direction: column; gap: 14px; width: 100%; margin-bottom: 20px; }
 .menu-item {
-  padding: 20px; background: var(--btn-bg); border-radius: 24px;
-  display: flex; align-items: center; gap: 16px; font-weight: 600; cursor: pointer;
-  width: 100%; box-sizing: border-box; transition: 0.2s;
+  padding: 22px; background: var(--btn-bg); border-radius: 26px;
+  display: flex; align-items: center; gap: 18px; font-weight: 600; cursor: pointer;
+  width: 100%; box-sizing: border-box; transition: 0.2s; color: var(--text);
 }
 .menu-item:active { transform: scale(0.97); background: var(--border); }
 .social-item { background: var(--bg); border: 1px solid var(--border); }
 .admin-item { color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(123, 52, 148, 0.2); }
 
+.settings-content h3, .settings-content h4 { color: var(--text); }
 .lang-badge { margin-left: auto; font-size: 12px; font-weight: 800; background: var(--card); padding: 4px 8px; border-radius: 8px; opacity: 0.6; }
 .toggle-switch { width: 46px; height: 28px; background: #C7C7CC; border-radius: 20px; margin-left: auto; position: relative; transition: 0.3s; }
 .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: white; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: 0.3s; }
 [data-theme="dark"] .toggle-switch { background: var(--accent); }
 [data-active="true"]::after { transform: translateX(18px); }
 
-.back-btn { margin-top: 10px; width: 100%; background: var(--text); color: var(--bg); border: none; padding: 18px; border-radius: 24px; font-weight: 700; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.back-btn { margin-top: 10px; width: 100%; background: var(--text); color: var(--bg); border: none; padding: 20px; border-radius: 26px; font-weight: 700; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .center-page { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; }
-.placeholder-circle { width: 120px; height: 120px; background: var(--accent-glow); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 0 40px var(--accent-glow); }
+.placeholder-circle { width: 130px; height: 130px; background: var(--accent-glow); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 35px; box-shadow: 0 0 50px var(--accent-glow); }
