@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users } from 'lucide-react';
 import './App.css';
 
 const ADMIN_ID = 8297304095; 
@@ -15,7 +15,8 @@ const T = {
     m_title: "Марафони ⚡️", m_empty: "Сезон закрито 🍂", m_empty_sub: "Скоро анонсуємо нові програми",
     h_title: "Незабаром", h_sub: "Графіки ваги та цикл з'являться тут",
     profile: "Мій профіль", settings: "Налаштування", admin: "Адмін-панель",
-    copied: "Скопійовано!", theme: "Темна тема", lang: "English Language"
+    copied: "Скопійовано!", theme: "Темна тема", lang: "English Language",
+    socials: "Спільнота", comm_chat: "Чат Trainery", comm_channel: "Канал Juls", insta: "Instagram"
   },
   en: {
     hello: "Hello", subtitle: "Your fitness space",
@@ -23,7 +24,8 @@ const T = {
     m_title: "Programs ⚡️", m_empty: "Season closed 🍂", m_empty_sub: "New programs coming soon",
     h_title: "Coming Soon", h_sub: "Weight charts and cycle tracker here",
     profile: "My Profile", settings: "Settings", admin: "Admin Panel",
-    copied: "Copied!", theme: "Dark Mode", lang: "Українська мова"
+    copied: "Copied!", theme: "Dark Mode", lang: "Українська мова",
+    socials: "Community", comm_chat: "Trainery Chat", comm_channel: "Juls Channel", insta: "Instagram"
   }
 };
 
@@ -41,9 +43,7 @@ function App() {
   const t = (key) => T[lang][key];
 
   useEffect(() => {
-    // Красивая задержка загрузки
     setTimeout(() => setLoading(false), 2200);
-
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
@@ -73,6 +73,11 @@ function App() {
     }
   };
 
+  // ОТКРЫТИЕ ССЫЛОК (Правильный метод для WebApp)
+  const openLink = (url) => {
+    window.Telegram.WebApp.openLink(url);
+  };
+
   const SpringButton = ({ children, onClick, className }) => (
     <motion.button
       whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.95 }}
@@ -84,7 +89,6 @@ function App() {
 
   return (
     <>
-      {/* ЭКРАН ЗАГРУЗКИ */}
       <AnimatePresence>
         {loading && (
           <motion.div className="loading-screen" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.4 }}>
@@ -103,7 +107,6 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* ОСНОВНОЙ КОНТЕЙНЕР (Добавляем класс blurred если профиль открыт) */}
       <div className={`app-container ${isProfileOpen ? 'blurred' : ''}`}>
         
         <header className="fixed-header">
@@ -191,6 +194,7 @@ function App() {
               
               <AnimatePresence mode="wait" initial={false}>
                 {!showSettings ? (
+                  // ПРОФИЛЬ
                   <motion.div key="prof" initial={{opacity:0, x:-50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}} transition={iosSpring} className="profile-content">
                     <div className="profile-header-center">
                       <div className="big-avatar">{user?.photo_url ? <img src={user.photo_url}/> : <User size={48} />}</div>
@@ -198,8 +202,7 @@ function App() {
                       <div className="username-tag">@{user?.username || 'user'}</div>
                       <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}><span>ID: {user?.id}</span>{copied ? <span style={{color:'#7B3494', fontWeight:'bold', marginLeft:5}}>OK</span> : <Copy size={12} style={{marginLeft:5, opacity:0.5}}/>}</motion.div>
                     </div>
-                    
-                    {/* КНОПКИ СТОЛБИКОМ */}
+
                     <div className="menu-list">
                       <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={() => setShowSettings(true)}>
                         <Settings size={20} /> {t('settings')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
@@ -208,20 +211,38 @@ function App() {
                     </div>
                   </motion.div>
                 ) : (
+                  // НАСТРОЙКИ (С СОЦСЕТЯМИ)
                   <motion.div key="sett" initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}} transition={iosSpring} className="settings-content">
-                    <h3 style={{marginBottom: 20, textAlign: 'center'}}>{t('settings')}</h3>
+                    <h3 style={{marginBottom: 15, textAlign: 'center'}}>{t('settings')}</h3>
                     
-                    <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={toggleTheme}>
-                      {theme === 'light' ? <Moon size={20}/> : <Sun size={20}/>}
-                      {t('theme')}
-                      <div className="toggle-switch" data-active={theme === 'dark'}></div>
-                    </motion.div>
-                    
-                    <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={() => setLang(lang === 'uk' ? 'en' : 'uk')}>
-                      <Globe size={20}/>
-                      {t('lang')}
-                      <div className="lang-badge">{lang.toUpperCase()}</div>
-                    </motion.div>
+                    {/* Группа 1: Система */}
+                    <div className="settings-group">
+                        <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={toggleTheme}>
+                        {theme === 'light' ? <Moon size={20}/> : <Sun size={20}/>}
+                        {t('theme')}
+                        <div className="toggle-switch" data-active={theme === 'dark'}></div>
+                        </motion.div>
+                        
+                        <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={() => setLang(lang === 'uk' ? 'en' : 'uk')}>
+                        <Globe size={20}/>
+                        {t('lang')}
+                        <div className="lang-badge">{lang.toUpperCase()}</div>
+                        </motion.div>
+                    </div>
+
+                    {/* Группа 2: Соцсети */}
+                    <h4 style={{margin: '20px 0 10px', opacity: 0.5, fontSize: 13, paddingLeft: 10}}>{t('socials')}</h4>
+                    <div className="settings-group">
+                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => openLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr')}>
+                            <Instagram size={20} color="#E1306C" /> {t('insta')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                        </motion.div>
+                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => openLink('https://t.me/trainery_community')}>
+                            <Users size={20} color="#0088cc" /> {t('comm_chat')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                        </motion.div>
+                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => openLink('https://t.me/julschannelua')}>
+                            <Send size={20} color="#0088cc" /> {t('comm_channel')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                        </motion.div>
+                    </div>
                     
                     <SpringButton className="back-btn" onClick={() => setShowSettings(false)}>
                       <ArrowLeft size={20} /> Назад
