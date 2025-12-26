@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users, CalendarHeart, Utensils, Scale, Dumbbell, HeartPulse, ShieldCheck, Flame, Plus, Trash2, CreditCard, HelpCircle, X, BookOpen, Check, Search } from 'lucide-react';
+import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users, CalendarHeart, Utensils, Scale, Dumbbell, HeartPulse, ShieldCheck, Flame, Plus, Trash2, CreditCard, HelpCircle, X, BookOpen, Check, Search, FileText } from 'lucide-react';
 import './App.css';
 
 const ADMIN_ID = 8297304095;
@@ -39,9 +39,9 @@ const T = {
     pub: "Опублікувати", del: "Видалити",
     // MENU
     menu_buy: "Купити Меню", menu_empty: "Меню ще не готове", menu_soon: "Слідкуй за оновленнями!",
-    manage_menu: "Додати Меню", menu_desc: "Опис меню", menu_price: "Ціна",
+    manage_menu: "Додати Меню", menu_desc: "Опис меню", menu_price: "Ціна", upload_pdf: "Завантажити PDF",
     collection: "Моя колекція", purchased: "Придбано", open_pdf: "Відкрити PDF",
-    search: "Пошук меню..."
+    search: "Пошук меню...", empty_coll: "Тут поки порожньо"
   },
   en: {
     hello: "Hello, Champion!", sub: "Your power space ✨",
@@ -62,9 +62,9 @@ const T = {
     pub: "Publish", del: "Delete",
     // MENU
     menu_buy: "Buy Menu", menu_empty: "Menu not ready yet", menu_soon: "Stay tuned!",
-    manage_menu: "Add Menu", menu_desc: "Menu Description", menu_price: "Price",
+    manage_menu: "Add Menu", menu_desc: "Menu Description", menu_price: "Price", upload_pdf: "Upload PDF",
     collection: "My Collection", purchased: "Purchased", open_pdf: "Open PDF",
-    search: "Search menu..."
+    search: "Search menu...", empty_coll: "It's empty here"
   }
 };
 
@@ -75,9 +75,8 @@ function App() {
   const [lang, setLangState] = useState(() => localStorage.getItem('app_lang') || 'uk');
   const [theme, setThemeState] = useState(() => localStorage.getItem('app_theme') || 'light');
   
-  // ДАННЫЕ
   const [news, setNews] = useState(() => JSON.parse(localStorage.getItem('app_news') || '[]'));
-  const [menuData, setMenuData] = useState(() => JSON.parse(localStorage.getItem('app_menu') || 'null')); 
+  const [menuData, setMenuData] = useState(() => JSON.parse(localStorage.getItem('app_menu') || 'null'));
   const [myCollection, setMyCollection] = useState(() => JSON.parse(localStorage.getItem('app_collection') || '[]'));
 
   const [loading, setLoading] = useState(true);
@@ -85,7 +84,6 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [imgErr, setImgErr] = useState(false);
 
-  // UI STATES
   const [selectedMonth, setSelectedMonth] = useState(0); 
   const [formData, setFormData] = useState({ insta: '', tg: '' });
   const [viewArticle, setViewArticle] = useState(null);
@@ -94,7 +92,6 @@ function App() {
   const [viewCollection, setViewCollection] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // ADMIN STATES
   const [adminTab, setAdminTab] = useState('news');
   const [newArticle, setNewArticle] = useState({ title: '', body: '', themeIdx: 0 });
   const [newMenu, setNewMenu] = useState({ title: '', desc: '', price: '' });
@@ -150,8 +147,6 @@ function App() {
   };
 
   const isPurchased = menuData && myCollection.some(m => m.id === menuData.id);
-  
-  // Фильтрация коллекции
   const filteredCollection = myCollection.filter(m => m.title.toLowerCase().includes(searchTerm.toLowerCase()));
 
   useEffect(() => {
@@ -286,15 +281,14 @@ function App() {
                     <div className="banner-anim-container"><div className="banner-decor bd-1" style={{left:-20}}></div></div><div className="health-text"><h3>{t('bod')}</h3></div><div className="health-icon-anim"><Scale size={32}/></div>
                   </motion.div>
                   <motion.div className="health-banner" whileTap={{scale:0.95}} onClick={()=>setViewMenu(true)} style={{background:'linear-gradient(135deg, #36D1DC, #5B86E5)'}}>
-                    <div className="banner-anim-container"><div className="banner-decor bd-2" style={{top:-20}}></div></div>
-                    <div className="health-text"><h3>{t('menu')}</h3>{isPurchased && <span style={{fontSize:12, fontWeight:700, background:'rgba(0,0,0,0.2)', padding:'2px 8px', borderRadius:10}}>✓ {t('purchased')}</span>}</div><div className="health-icon-anim"><Utensils size={32}/></div>
+                    <div className="banner-anim-container"><div className="banner-decor bd-2" style={{top:-20}}></div></div><div className="health-text"><h3>{t('menu')}</h3></div><div className="health-icon-anim"><Utensils size={32}/></div>
                   </motion.div>
                 </motion.div>
               </motion.div>
             )}
 
             {activeTab === 'profile' && (
-              <motion.div key="profile" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
+              <motion.div key="profile" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}}>
                 <div className="page-nav-header">
                   <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('home')}><ArrowLeft size={24}/></motion.div>
                   <div className="page-nav-title">{t('prof')}</div><div></div>
@@ -317,7 +311,7 @@ function App() {
               </motion.div>
             )}
 
-            {/* --- МОЯ КОЛЛЕКЦИЯ (ПОИСК + ДИЗАЙН) --- */}
+            {/* --- МОЯ КОЛЛЕКЦИЯ (ПОИСК ИСПРАВЛЕН) --- */}
             {viewCollection && (
               <motion.div className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:210}}>
                 <div className="page-nav-header">
@@ -325,39 +319,43 @@ function App() {
                   <div className="page-nav-title">{t('collection')}</div><div></div>
                 </div>
                 <div className="scroll-content">
-                  <div className="input-group" style={{marginBottom:15}}>
-                    <input className="custom-input" placeholder={t('search')} value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} style={{paddingLeft:40}}/>
-                    <Search size={20} style={{position:'absolute', top:18, left:12, color:'var(--text-sec)'}}/>
+                  <div className="input-group">
+                    <div className="input-with-icon">
+                      <Search size={20} className="input-icon"/>
+                      <input className="custom-input has-icon" placeholder={t('search')} value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}/>
+                    </div>
                   </div>
 
                   {filteredCollection.length > 0 ? filteredCollection.map((m, i) => (
-                    <div key={i} className="list-item-compact" style={{background:'var(--card)'}}>
+                    <motion.div key={i} className="collection-card" whileTap={{scale:0.98}}>
                       <div style={{display:'flex', alignItems:'center', gap:12}}>
-                        <div style={{background:'var(--accent)', padding:10, borderRadius:12, color:'white'}}><Utensils size={20}/></div>
-                        <div style={{textAlign:'left'}}>
-                          <div style={{fontWeight:700}}>{m.title}</div>
-                          <div style={{fontSize:12, opacity:0.7}}>{m.price} UAH</div>
+                        <div style={{background:'rgba(255,255,255,0.2)', padding:10, borderRadius:12}}><Utensils size={24} color="white"/></div>
+                        <div>
+                          <div style={{fontWeight:800, fontSize:18}}>{m.title}</div>
+                          <div style={{fontSize:13, opacity:0.8}}>{m.price} UAH</div>
                         </div>
                       </div>
-                      <button style={{padding:'8px 16px', borderRadius:14, border:'none', background:'var(--bg)', color:'var(--text)', fontWeight:600}}>{t('open_pdf')}</button>
-                    </div>
+                      <div className="pdf-btn">{t('open_pdf')}</div>
+                    </motion.div>
                   )) : (
                     <div className="glass-card" style={{width:'100%', minHeight:200}}>
                       <div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={40}/></div>
-                      <h3>Пусто</h3>
+                      <h3>{t('empty_coll')}</h3>
                     </div>
                   )}
                 </div>
               </motion.div>
             )}
 
+            {/* НАСТРОЙКИ (ВЕРНУЛ КРАСОТУ) */}
             {activeTab === 'settings' && (
-              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
+              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}}>
                 <div className="page-nav-header">
                   <motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div>
                   <div className="page-nav-title">{t('set')}</div><div></div>
                 </div>
                 <div className="scroll-content">
+                  {/* КНОПКИ ТЕМЫ И ЯЗЫКА - ТЕПЕРЬ СОЧНЫЕ */}
                   <div className="menu-stack" style={{marginBottom: 30}}>
                      <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={toggleTheme}>
                        {theme==='light'?<Moon size={24}/>:<Sun size={24}/>}
@@ -396,7 +394,9 @@ function App() {
                     <>
                       <div className="admin-card">
                         <div className="admin-header"><h3>{t('add_news')}</h3></div>
-                        <div className="color-picker">{NEWS_THEMES.map((th, i) => <motion.div key={i} whileTap={{scale:0.9}} className={`color-btn ${newArticle.themeIdx===i?'active':''}`} style={{background:th.bg}} onClick={()=>setNewArticle({...newArticle, themeIdx:i})}/>)}</div>
+                        <div className="color-picker">
+                          {NEWS_THEMES.map((th, i) => <motion.div key={i} whileTap={{scale:0.9}} className={`color-btn ${newArticle.themeIdx===i?'active':''}`} style={{background:th.bg}} onClick={()=>setNewArticle({...newArticle, themeIdx:i})}/>)}
+                        </div>
                         <div className="input-group"><input className="custom-input" placeholder={t('news_title')} value={newArticle.title} onChange={e=>setNewArticle({...newArticle, title:e.target.value})} maxLength={50}/></div>
                         <div className="input-group"><textarea className="custom-input" rows={4} placeholder={t('news_body')} value={newArticle.body} onChange={e=>setNewArticle({...newArticle, body:e.target.value})} maxLength={200}/></div>
                         <motion.button whileTap={{scale:0.95}} className="action-btn" onClick={addNews}><Plus size={20}/> {t('pub')}</motion.button>
@@ -408,10 +408,7 @@ function App() {
                       <div className="admin-header"><h3>{t('manage_menu')}</h3></div>
                       {menuData ? (
                         <div className="list-item-compact" style={{background:'var(--bg)'}}>
-                          <div>
-                            <div style={{fontWeight:800}}>{menuData.title}</div>
-                            <div style={{opacity:0.7, fontSize:13}}>{menuData.price} UAH</div>
-                          </div>
+                          <div><div style={{fontWeight:800}}>{menuData.title}</div><div style={{opacity:0.7, fontSize:13}}>{menuData.price} UAH</div></div>
                           <Trash2 size={20} color="red" onClick={deleteMenu}/>
                         </div>
                       ) : (
@@ -419,6 +416,10 @@ function App() {
                           <div className="input-group"><input className="custom-input" placeholder="Назва меню" value={newMenu.title} onChange={e=>setNewMenu({...newMenu, title:e.target.value})}/></div>
                           <div className="input-group"><textarea className="custom-input" placeholder={t('menu_desc')} value={newMenu.desc} onChange={e=>setNewMenu({...newMenu, desc:e.target.value})}/></div>
                           <div className="input-group"><input className="custom-input" type="number" placeholder={t('menu_price')} value={newMenu.price} onChange={e=>setNewMenu({...newMenu, price:e.target.value})}/></div>
+                          
+                          {/* КНОПКА ЗАГРУЗКИ PDF (ВИЗУАЛ) */}
+                          <motion.button whileTap={{scale:0.95}} className="action-btn file-btn"><FileText size={20}/> {t('upload_pdf')}</motion.button>
+
                           <motion.button whileTap={{scale:0.95}} className="action-btn" onClick={saveMenu}><Plus size={20}/> Зберегти меню</motion.button>
                         </>
                       )}
