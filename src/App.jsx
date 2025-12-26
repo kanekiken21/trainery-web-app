@@ -5,6 +5,7 @@ import './App.css';
 
 const ADMIN_ID = 8297304095; 
 
+// 🔥 УПРУГАЯ ФИЗИКА (БЫСТРАЯ)
 const iosSpring = { type: "spring", stiffness: 350, damping: 30 };
 
 const T = {
@@ -182,69 +183,85 @@ function App() {
         {isProfileOpen && (
           <>
             <motion.div className="backdrop" onClick={() => setProfileOpen(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+            {/* МОДАЛКА С LAYOUT (ТЯНЕТСЯ ПЛАВНО) */}
             <motion.div 
               className="modal glass-panel"
+              layout // МАГИЯ РАСТЯГИВАНИЯ
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
               transition={iosSpring}
               drag="y" dragConstraints={{ top: 0 }} dragElastic={0.05}
               onDragEnd={(_, info) => { if (info.offset.y > 100) setProfileOpen(false) }}
             >
-              <div className="modal-top" onClick={() => setProfileOpen(false)}><div className="bar"></div></div>
-              
-              <AnimatePresence mode="wait" initial={false}>
-                {!showSettings ? (
-                  <motion.div key="prof" initial={{opacity:0, x:-50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}} transition={iosSpring} className="profile-content">
-                    <div className="profile-header-center">
-                      <div className="big-avatar">{user?.photo_url ? <img src={user.photo_url}/> : <User size={48} />}</div>
-                      <h3>{user?.first_name}</h3>
-                      <div className="username-tag">@{user?.username || 'user'}</div>
-                      <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}><span>ID: {user?.id}</span>{copied ? <span style={{color:'#7B3494', fontWeight:'bold', marginLeft:5}}>OK</span> : <Copy size={12} style={{marginLeft:5, opacity:0.5}}/>}</motion.div>
-                    </div>
+              <div className="modal-content-wrapper">
+                <div className="modal-top" onClick={() => setProfileOpen(false)}><div className="bar"></div></div>
+                
+                <AnimatePresence mode="wait" initial={false}>
+                  {!showSettings ? (
+                    // ПРОФИЛЬ
+                    <motion.div 
+                      key="prof" 
+                      initial={{opacity:0, x:-50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:-50}} 
+                      transition={iosSpring} 
+                      className="profile-content"
+                    >
+                      <div className="profile-header-center">
+                        <div className="big-avatar">{user?.photo_url ? <img src={user.photo_url}/> : <User size={48} />}</div>
+                        <h3>{user?.first_name}</h3>
+                        <div className="username-tag">@{user?.username || 'user'}</div>
+                        <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}><span>ID: {user?.id}</span>{copied ? <span style={{color:'#7B3494', fontWeight:'bold', marginLeft:5}}>OK</span> : <Copy size={12} style={{marginLeft:5, opacity:0.5}}/>}</motion.div>
+                      </div>
 
-                    <div className="menu-list">
-                      <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={() => setShowSettings(true)}>
-                        <Settings size={20} /> {t('settings')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
-                      </motion.div>
-                      {user?.id === ADMIN_ID && <motion.div whileTap={{scale:0.98}} className="menu-item admin-item"><Lock size={20} /> {t('admin')}</motion.div>}
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div key="sett" initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}} transition={iosSpring} className="settings-content">
-                    <h3 style={{marginBottom: 15, textAlign: 'center'}}>{t('settings')}</h3>
-                    
-                    <div className="settings-group">
-                        <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={toggleTheme}>
-                        {theme === 'light' ? <Moon size={20}/> : <Sun size={20}/>}
-                        {t('theme')}
-                        <div className="toggle-switch" data-active={theme === 'dark'}></div>
+                      <div className="menu-list">
+                        <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={() => setShowSettings(true)}>
+                          <Settings size={20} /> {t('settings')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
                         </motion.div>
-                        
-                        <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={() => setLang(lang === 'uk' ? 'en' : 'uk')}>
-                        <Globe size={20}/>
-                        {t('lang')}
-                        <div className="lang-badge">{lang.toUpperCase()}</div>
-                        </motion.div>
-                    </div>
+                        {user?.id === ADMIN_ID && <motion.div whileTap={{scale:0.98}} className="menu-item admin-item"><Lock size={20} /> {t('admin')}</motion.div>}
+                      </div>
+                    </motion.div>
+                  ) : (
+                    // НАСТРОЙКИ
+                    <motion.div 
+                      key="sett" 
+                      initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}} 
+                      transition={iosSpring} 
+                      className="settings-content"
+                    >
+                      <h3 style={{marginBottom: 15, textAlign: 'center'}}>{t('settings')}</h3>
+                      
+                      <div className="settings-group">
+                          <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={toggleTheme}>
+                          {theme === 'light' ? <Moon size={20}/> : <Sun size={20}/>}
+                          {t('theme')}
+                          <div className="toggle-switch" data-active={theme === 'dark'}></div>
+                          </motion.div>
+                          
+                          <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={() => setLang(lang === 'uk' ? 'en' : 'uk')}>
+                          <Globe size={20}/>
+                          {t('lang')}
+                          <div className="lang-badge">{lang.toUpperCase()}</div>
+                          </motion.div>
+                      </div>
 
-                    <h4 style={{margin: '20px 0 10px', opacity: 0.5, fontSize: 13, paddingLeft: 10}}>{t('socials')}</h4>
-                    <div className="settings-group">
-                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}>
-                            <Instagram size={20} color="#E1306C" /> {t('insta')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
-                        </motion.div>
-                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/trainery_community', true)}>
-                            <Users size={20} color="#0088cc" /> {t('comm_channel_bot')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
-                        </motion.div>
-                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/julschannelua', true)}>
-                            <Send size={20} color="#0088cc" /> {t('comm_channel_mom')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
-                        </motion.div>
-                    </div>
-                    
-                    <SpringButton className="back-btn" onClick={() => setShowSettings(false)}>
-                      <ArrowLeft size={20} /> Назад
-                    </SpringButton>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      <h4 style={{margin: '20px 0 10px', opacity: 0.5, fontSize: 13, paddingLeft: 10}}>{t('socials')}</h4>
+                      <div className="settings-group">
+                          <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}>
+                              <Instagram size={20} color="#E1306C" /> {t('insta')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                          </motion.div>
+                          <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/trainery_community', true)}>
+                              <Users size={20} color="#0088cc" /> {t('comm_channel_bot')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                          </motion.div>
+                          <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/julschannelua', true)}>
+                              <Send size={20} color="#0088cc" /> {t('comm_channel_mom')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                          </motion.div>
+                      </div>
+                      
+                      <SpringButton className="back-btn" onClick={() => setShowSettings(false)}>
+                        <ArrowLeft size={20} /> Назад
+                      </SpringButton>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           </>
         )}
