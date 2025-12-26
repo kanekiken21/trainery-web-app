@@ -16,7 +16,7 @@ const T = {
     h_title: "Незабаром", h_sub: "Графіки ваги та цикл з'являться тут",
     profile: "Мій профіль", settings: "Налаштування", admin: "Адмін-панель",
     copied: "Скопійовано!", theme: "Темна тема", lang: "English Language",
-    socials: "Спільнота", comm_chat: "Чат Trainery", comm_channel: "Канал Juls", insta: "Instagram"
+    socials: "Спільнота", comm_channel_bot: "Канал Trainery", comm_channel_mom: "Канал Juls", insta: "Instagram"
   },
   en: {
     hello: "Hello", subtitle: "Your fitness space",
@@ -25,7 +25,7 @@ const T = {
     h_title: "Coming Soon", h_sub: "Weight charts and cycle tracker here",
     profile: "My Profile", settings: "Settings", admin: "Admin Panel",
     copied: "Copied!", theme: "Dark Mode", lang: "Українська мова",
-    socials: "Community", comm_chat: "Trainery Chat", comm_channel: "Juls Channel", insta: "Instagram"
+    socials: "Community", comm_channel_bot: "Trainery Channel", comm_channel_mom: "Juls Channel", insta: "Instagram"
   }
 };
 
@@ -73,9 +73,15 @@ function App() {
     }
   };
 
-  // ОТКРЫТИЕ ССЫЛОК (Правильный метод для WebApp)
-  const openLink = (url) => {
-    window.Telegram.WebApp.openLink(url);
+  // УМНАЯ ФУНКЦИЯ ОТКРЫТИЯ ССЫЛОК
+  const handleLink = (url, isTelegram = false) => {
+    if (isTelegram) {
+      // Открывает внутри приложения
+      window.Telegram.WebApp.openTelegramLink(url);
+    } else {
+      // Открывает в браузере (для Инсты)
+      window.Telegram.WebApp.openLink(url);
+    }
   };
 
   const SpringButton = ({ children, onClick, className }) => (
@@ -94,7 +100,7 @@ function App() {
           <motion.div className="loading-screen" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.4 }}>
              {!imgError.logo ? (
                <motion.img 
-                 src="/logo.png" className="loading-logo"
+                 src="logo.png" className="loading-logo"
                  initial={{ scale: 0.8, opacity: 0 }}
                  animate={{ scale: [1, 1.05, 1], opacity: 1 }} 
                  transition={{ repeat: Infinity, duration: 2 }}
@@ -111,7 +117,7 @@ function App() {
         
         <header className="fixed-header">
           <motion.div className="header-logo" initial={{opacity:0, x:-20}} animate={{opacity:1, x:0}}>
-             {!imgError.logo ? <img src="/logo.png" className="app-logo" onError={() => setImgError(prev => ({...prev, logo: true}))}/> : <div className="app-logo-fallback"><Zap size={20} color="white"/></div>}
+             {!imgError.logo ? <img src="logo.png" className="app-logo" onError={() => setImgError(prev => ({...prev, logo: true}))}/> : <div className="app-logo-fallback"><Zap size={20} color="white"/></div>}
              <h1>Trainery</h1>
           </motion.div>
           <motion.div className="profile-bubble" whileTap={{ scale: 0.9 }} onClick={() => { setProfileOpen(true); setShowSettings(false); }}>
@@ -132,7 +138,7 @@ function App() {
                   </div>
                   <div className="empty-card glass-panel">
                       {!imgError.chibi ? (
-                        <motion.img src="/chibi.png" className="chibi-img" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} onError={() => setImgError(prev => ({...prev, chibi: true}))} />
+                        <motion.img src="chibi.png" className="chibi-img" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} onError={() => setImgError(prev => ({...prev, chibi: true}))} />
                       ) : (
                         <div className="icon-fallback"><Sparkles size={50} color="#7B3494"/></div>
                       )}
@@ -146,7 +152,7 @@ function App() {
                   <h2 className="page-title">{t('m_title')}</h2>
                   <motion.div className="empty-card glass-panel" style={{ minHeight: '320px' }}>
                        {!imgError.premium ? (
-                         <motion.img src="/logo.png" className="prem-img" style={{borderRadius: 16}} animate={{ rotate: [0, 3, -3, 0] }} transition={{ repeat: Infinity, duration: 6 }} onError={() => setImgError(prev => ({...prev, premium: true}))} />
+                         <motion.img src="logo.png" className="prem-img" style={{borderRadius: 16}} animate={{ rotate: [0, 3, -3, 0] }} transition={{ repeat: Infinity, duration: 6 }} onError={() => setImgError(prev => ({...prev, premium: true}))} />
                        ) : (
                          <div className="icon-fallback"><Zap size={50} color="#7B3494"/></div>
                        )}
@@ -203,6 +209,7 @@ function App() {
                       <motion.div whileTap={{ scale: 0.95 }} className="id-pill" onClick={copyId}><span>ID: {user?.id}</span>{copied ? <span style={{color:'#7B3494', fontWeight:'bold', marginLeft:5}}>OK</span> : <Copy size={12} style={{marginLeft:5, opacity:0.5}}/>}</motion.div>
                     </div>
 
+                    {/* СПИСОК МЕНЮ (GAP ИСПРАВЛЕН В CSS) */}
                     <div className="menu-list">
                       <motion.div whileTap={{scale:0.98}} className="menu-item" onClick={() => setShowSettings(true)}>
                         <Settings size={20} /> {t('settings')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
@@ -211,11 +218,10 @@ function App() {
                     </div>
                   </motion.div>
                 ) : (
-                  // НАСТРОЙКИ (С СОЦСЕТЯМИ)
+                  // НАСТРОЙКИ
                   <motion.div key="sett" initial={{opacity:0, x:50}} animate={{opacity:1, x:0}} exit={{opacity:0, x:50}} transition={iosSpring} className="settings-content">
                     <h3 style={{marginBottom: 15, textAlign: 'center'}}>{t('settings')}</h3>
                     
-                    {/* Группа 1: Система */}
                     <div className="settings-group">
                         <motion.div layout whileTap={{scale:0.98}} className="menu-item" onClick={toggleTheme}>
                         {theme === 'light' ? <Moon size={20}/> : <Sun size={20}/>}
@@ -230,17 +236,16 @@ function App() {
                         </motion.div>
                     </div>
 
-                    {/* Группа 2: Соцсети */}
                     <h4 style={{margin: '20px 0 10px', opacity: 0.5, fontSize: 13, paddingLeft: 10}}>{t('socials')}</h4>
                     <div className="settings-group">
-                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => openLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr')}>
+                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}>
                             <Instagram size={20} color="#E1306C" /> {t('insta')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
                         </motion.div>
-                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => openLink('https://t.me/trainery_community')}>
-                            <Users size={20} color="#0088cc" /> {t('comm_chat')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/trainery_community', true)}>
+                            <Users size={20} color="#0088cc" /> {t('comm_channel_bot')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
                         </motion.div>
-                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => openLink('https://t.me/julschannelua')}>
-                            <Send size={20} color="#0088cc" /> {t('comm_channel')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
+                        <motion.div whileTap={{scale:0.98}} className="menu-item social-item" onClick={() => handleLink('https://t.me/julschannelua', true)}>
+                            <Send size={20} color="#0088cc" /> {t('comm_channel_mom')} <ChevronRight size={16} style={{marginLeft:'auto', opacity:0.3}}/>
                         </motion.div>
                     </div>
                     
