@@ -19,12 +19,10 @@ const NEWS_THEMES = [
   { bg: 'linear-gradient(135deg, #333 0%, #000 100%)', text: '#fff' }
 ];
 
-// КАТЕГОРИИ МЕНЮ С ЦВЕТАМИ ДЛЯ НЕОНА
+// НОВЫЕ КАТЕГОРИИ ОТ МАМЫ
 const MENU_CATEGORIES = [
-  { id: 'fatloss', label: '🔥 Схуднення', color: '#FF9A44' },
-  { id: 'muscle', label: '💪 Набір маси', color: '#8B5CF6' },
-  { id: 'balance', label: '🥗 Баланс', color: '#10B981' },
-  { id: 'vegan', label: '🌱 Веган', color: '#4ADE80' }
+  { id: '1400', label: '1400 ККАЛ', color: '#FF9A44' }, // Оранжевый
+  { id: '1600', label: '1600 ККАЛ', color: '#10B981' }  // Зеленый
 ];
 
 const T = {
@@ -103,7 +101,7 @@ function App() {
 
   const [adminTab, setAdminTab] = useState('news');
   const [newArticle, setNewArticle] = useState({ title: '', body: '', themeIdx: 0 });
-  const [newMenu, setNewMenu] = useState({ title: '', desc: '', price: '', cat: 'fatloss' });
+  const [newMenu, setNewMenu] = useState({ title: '', desc: '', price: '', cat: '1400' });
 
   const t = (key) => T[lang][key];
   const monthsList = lang === 'uk' ? MONTHS_UK : MONTHS_EN;
@@ -138,7 +136,7 @@ function App() {
     const updated = [...menus, menu];
     setMenus(updated);
     localStorage.setItem('app_menus', JSON.stringify(updated));
-    setNewMenu({ title: '', desc: '', price: '', cat: 'fatloss' });
+    setNewMenu({ title: '', desc: '', price: '', cat: '1400' });
     alert("Menu added!");
   };
 
@@ -160,7 +158,6 @@ function App() {
   const isPurchased = (id) => myCollection.some(m => m.id === id);
   const filteredCollection = myCollection.filter(m => m.title.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  // ЗАГРУЗКА
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     setProgress(0);
@@ -196,6 +193,9 @@ function App() {
   return (
     <>
       <div className="noise-overlay"></div>
+      <div className="particles-container">
+        <div className="particle p1"></div><div className="particle p2"></div><div className="particle p3"></div>
+      </div>
       <div className="ambient-bg"></div>
 
       <AnimatePresence>
@@ -435,7 +435,7 @@ function App() {
               </motion.div>
             )}
 
-            {/* ПРОСМОТР МЕНЮ (СВАЙП + КАТЕГОРИИ) */}
+            {/* ПРОСМОТР МЕНЮ (СВАЙП + НЕОН) */}
             {viewMenu && (
               <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
                 <div className="page-nav-header">
