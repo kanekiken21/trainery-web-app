@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users, CalendarHeart, Utensils, Scale, Dumbbell, HeartPulse, ShieldCheck, Flame, Plus, Trash2, CreditCard, HelpCircle, X, BookOpen, Check, Search, FileText } from 'lucide-react';
 import './App.css';
@@ -91,9 +91,8 @@ function App() {
   const [viewCollection, setViewCollection] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
-  // КАТЕГОРИИ МЕНЮ
   const [activeCategory, setActiveCategory] = useState('1400');
-  const [activeMenuIndex, setActiveMenuIndex] = useState(0); // ДЛЯ ТОЧЕК
+  const [activeMenuIndex, setActiveMenuIndex] = useState(0); 
 
   const [adminTab, setAdminTab] = useState('news');
   const [newArticle, setNewArticle] = useState({ title: '', body: '', themeIdx: 0 });
@@ -154,7 +153,6 @@ function App() {
   const filteredCollection = myCollection.filter(m => m.title.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredMenus = menus.filter(m => m.cat === activeCategory);
 
-  // СЛУШАТЕЛЬ СКРОЛЛА ДЛЯ ТОЧЕК
   const handleMenuScroll = (e) => {
     const scrollLeft = e.target.scrollLeft;
     const width = e.target.offsetWidth;
@@ -231,7 +229,6 @@ function App() {
         <div className="content-area">
           <AnimatePresence mode="wait">
             
-            {/* ГЛАВНАЯ */}
             {activeTab === 'home' && (
               <motion.div key="home" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}><h2>{t('hello')}</h2><p>{t('sub')}</p></motion.div>
@@ -252,7 +249,6 @@ function App() {
               </motion.div>
             )}
 
-            {/* МАРАФОНЫ */}
             {activeTab === 'marathons' && (
               <motion.div key="marathons" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}><h2>{t('m_title')}</h2><p>{t('m_sub')}</p></motion.div>
@@ -276,7 +272,6 @@ function App() {
               </motion.div>
             )}
 
-            {/* ЗДОРОВЬЕ */}
             {activeTab === 'health' && (
               <motion.div key="health" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}><h2>{t('h_title')}</h2><p>{t('h_sub')}</p></motion.div>
@@ -300,17 +295,9 @@ function App() {
             {/* ПРОСМОТР МЕНЮ */}
             {viewMenu && (
               <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
-                <div className="page-nav-header">
-                  <motion.div className="back-btn-circle" onClick={()=>setViewMenu(false)}><X size={24}/></motion.div>
-                  <div className="page-nav-title">{t('menu')}</div><div></div>
-                </div>
+                <div className="page-nav-header"><motion.div className="back-btn-circle" onClick={()=>setViewMenu(false)}><X size={24}/></motion.div><div className="page-nav-title">{t('menu')}</div><div></div></div>
                 <div className="scroll-content">
-                  <div className="category-switcher">
-                    {MENU_CATEGORIES.map(cat => (
-                      <div key={cat.id} className={`cat-btn ${activeCategory === cat.id ? 'active' : ''}`} onClick={()=>setActiveCategory(cat.id)}>{cat.label}</div>
-                    ))}
-                  </div>
-
+                  <div className="category-switcher">{MENU_CATEGORIES.map(cat => (<div key={cat.id} className={`cat-btn ${activeCategory === cat.id ? 'active' : ''}`} onClick={()=>setActiveCategory(cat.id)}>{cat.label}</div>))}</div>
                   {filteredMenus.length > 0 ? (
                     <>
                       <div className="menu-carousel" onScroll={handleMenuScroll}>
@@ -331,15 +318,10 @@ function App() {
                           );
                         })}
                       </div>
-                      <div className="pagination-dots">
-                        {filteredMenus.map((_, i) => <div key={i} className={`dot ${i===activeMenuIndex?'active':''}`}/>)}
-                      </div>
+                      <div className="pagination-dots">{filteredMenus.map((_, i) => <div key={i} className={`dot ${i===activeMenuIndex?'active':''}`}/>)}</div>
                     </>
                   ) : (
-                    <div className="glass-card" style={{width:'100%', minHeight:200, marginTop:10}}>
-                      <div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={50}/></div>
-                      <h3>{t('menu_empty')}</h3><p>{t('menu_soon')}</p>
-                    </div>
+                    <div className="glass-card" style={{width:'100%', minHeight:200, marginTop:10}}><div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={50}/></div><h3>{t('menu_empty')}</h3><p>{t('menu_soon')}</p></div>
                   )}
                 </div>
               </motion.div>
@@ -371,6 +353,20 @@ function App() {
               </motion.div>
             )}
 
+            {/* НАСТРОЙКИ */}
+            {activeTab === 'settings' && (
+              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
+                <div className="page-nav-header"><motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('set')}</div><div></div></div>
+                <div className="scroll-content">
+                  <div className="menu-stack" style={{marginBottom: 30}}>
+                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={toggleTheme}>{theme==='light'?<Moon size={24}/>:<Sun size={24}/>}<span style={{flex:1, textAlign:'left'}}>{t('theme')}</span></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setLang(lang==='uk'?'en':'uk')}><Globe size={24}/><span style={{flex:1, textAlign:'left'}}>{t('lang')}</span><span style={{opacity:0.6, fontWeight: 800}}>{lang.toUpperCase()}</span></motion.div>
+                  </div>
+                  <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4>
+                  <div className="menu-stack"><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery_community', true)}><Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/julschannelua', true)}><Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div></div>
+                </div>
+              </motion.div>
+            )}
+
             {/* АДМИНКА */}
             {activeTab === 'admin' && (
               <motion.div key="admin" className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}}>
@@ -386,25 +382,10 @@ function App() {
               </motion.div>
             )}
 
-            {/* ПРОСМОТР СТАТЬИ */}
             {viewArticle && (
               <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
                 <div className="page-nav-header"><motion.div className="back-btn-circle" onClick={()=>setViewArticle(null)}><X size={24}/></motion.div><div className="page-nav-title">News</div><div></div></div>
                 <div className="scroll-content" style={{alignItems:'flex-start', paddingTop: 20}}><div className="news-card" style={{background: viewArticle.bg, color: viewArticle.text, width:'100%', marginBottom:20, height:'auto', minHeight:120}}><div className="news-date">{viewArticle.date}</div><div className="news-title" style={{fontSize:24}}>{viewArticle.title}</div></div><div style={{fontSize:16, lineHeight:1.6, whiteSpace:'pre-wrap'}}>{viewArticle.body}</div></div>
-              </motion.div>
-            )}
-
-            {/* НАСТРОЙКИ */}
-            {activeTab === 'settings' && (
-              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
-                <div className="page-nav-header"><motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('set')}</div><div></div></div>
-                <div className="scroll-content">
-                  <div className="menu-stack" style={{marginBottom: 30}}>
-                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={toggleTheme}>{theme==='light'?<Moon size={24}/>:<Sun size={24}/>}<span style={{flex:1, textAlign:'left'}}>{t('theme')}</span></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setLang(lang==='uk'?'en':'uk')}><Globe size={24}/><span style={{flex:1, textAlign:'left'}}>{t('lang')}</span><span style={{opacity:0.6, fontWeight: 800}}>{lang.toUpperCase()}</span></motion.div>
-                  </div>
-                  <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4>
-                  <div className="menu-stack"><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery_community', true)}><Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/julschannelua', true)}><Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div></div>
-                </div>
               </motion.div>
             )}
 
