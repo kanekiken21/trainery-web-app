@@ -9,6 +9,10 @@ const spring = { type: "spring", stiffness: 300, damping: 25 };
 const containerVars = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVars = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: spring } };
 
+// Full names of months
+const MONTHS_UK = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
+const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 const NEWS_THEMES = [
   { bg: 'linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%)', text: '#000' },
   { bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)', text: '#fff' },
@@ -99,8 +103,8 @@ function App() {
   const [newMenu, setNewMenu] = useState({ title: '', desc: '', price: '', cat: '1400' });
 
   const t = (key) => T[lang][key];
-  const monthsList = lang === 'uk' ? ['Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'] : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const currentMonthIdx = new Date().getMonth();
+  const monthsList = lang === 'uk' ? MONTHS_UK : MONTHS_EN; // Full names
 
   const setLang = (l) => { setLangState(l); localStorage.setItem('app_lang', l); };
   const toggleTheme = () => {
@@ -295,9 +299,17 @@ function App() {
             {/* ПРОСМОТР МЕНЮ */}
             {viewMenu && (
               <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
-                <div className="page-nav-header"><motion.div className="back-btn-circle" onClick={()=>setViewMenu(false)}><X size={24}/></motion.div><div className="page-nav-title">{t('menu')}</div><div></div></div>
+                <div className="page-nav-header">
+                  <motion.div className="back-btn-circle" onClick={()=>setViewMenu(false)}><X size={24}/></motion.div>
+                  <div className="page-nav-title">{t('menu')}</div><div></div>
+                </div>
                 <div className="scroll-content">
-                  <div className="category-switcher">{MENU_CATEGORIES.map(cat => (<div key={cat.id} className={`cat-btn ${activeCategory === cat.id ? 'active' : ''}`} onClick={()=>setActiveCategory(cat.id)}>{cat.label}</div>))}</div>
+                  <div className="category-switcher">
+                    {MENU_CATEGORIES.map(cat => (
+                      <div key={cat.id} className={`cat-btn ${activeCategory === cat.id ? 'active' : ''}`} onClick={()=>setActiveCategory(cat.id)}>{cat.label}</div>
+                    ))}
+                  </div>
+
                   {filteredMenus.length > 0 ? (
                     <>
                       <div className="menu-carousel" onScroll={handleMenuScroll}>
@@ -318,10 +330,15 @@ function App() {
                           );
                         })}
                       </div>
-                      <div className="pagination-dots">{filteredMenus.map((_, i) => <div key={i} className={`dot ${i===activeMenuIndex?'active':''}`}/>)}</div>
+                      <div className="pagination-dots">
+                        {filteredMenus.map((_, i) => <div key={i} className={`dot ${i===activeMenuIndex?'active':''}`}/>)}
+                      </div>
                     </>
                   ) : (
-                    <div className="glass-card" style={{width:'100%', minHeight:200, marginTop:10}}><div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={50}/></div><h3>{t('menu_empty')}</h3><p>{t('menu_soon')}</p></div>
+                    <div className="glass-card" style={{width:'100%', minHeight:200, marginTop:10}}>
+                      <div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={50}/></div>
+                      <h3>{t('menu_empty')}</h3><p>{t('menu_soon')}</p>
+                    </div>
                   )}
                 </div>
               </motion.div>
@@ -345,7 +362,13 @@ function App() {
                 <div className="scroll-content">
                   <div className="input-group"><div className="input-with-icon"><Search size={20} className="input-icon" style={{position:'absolute', top:18, left:18}}/><input className="custom-input" style={{paddingLeft:50}} placeholder={t('search')} value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}/></div></div>
                   {filteredCollection.length > 0 ? filteredCollection.map((m, i) => (
-                    <motion.div key={i} className="collection-card" whileTap={{scale:0.98}}><div style={{display:'flex', alignItems:'center', gap:12}}><div style={{background:'rgba(255,255,255,0.2)', padding:10, borderRadius:12}}><Utensils size={24} color="white"/></div><div><div style={{fontWeight:800, fontSize:18}}>{m.title}</div><div style={{fontSize:13, opacity:0.8}}>{m.price} UAH</div></div></div><div className="pdf-btn">{t('open_pdf')}</div></motion.div>
+                    <motion.div key={i} className="collection-card" whileTap={{scale:0.98}}>
+                      <div style={{display:'flex', alignItems:'center', gap:12}}>
+                        <div className="coll-icon"><Utensils size={24}/></div>
+                        <div><div style={{fontWeight:800, fontSize:18}}>{m.title}</div><div style={{fontSize:13, opacity:0.8}}>{m.price} UAH</div></div>
+                      </div>
+                      <div className="pdf-btn">{t('open_pdf')}</div>
+                    </motion.div>
                   )) : (
                     <div className="glass-card" style={{width:'100%', minHeight:200}}><div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={40}/></div><h3>{t('empty_coll')}</h3></div>
                   )}
