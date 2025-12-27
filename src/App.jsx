@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users, CalendarHeart, Utensils, Scale, Dumbbell, HeartPulse, ShieldCheck, Flame, Plus, Trash2, CreditCard, HelpCircle, X, BookOpen, Check, Search, FileText } from 'lucide-react';
 import './App.css';
@@ -9,7 +9,7 @@ const spring = { type: "spring", stiffness: 300, damping: 25 };
 const containerVars = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVars = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: spring } };
 
-// Full names of months
+// ПОЛНЫЕ МЕСЯЦЫ
 const MONTHS_UK = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
 const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -103,8 +103,8 @@ function App() {
   const [newMenu, setNewMenu] = useState({ title: '', desc: '', price: '', cat: '1400' });
 
   const t = (key) => T[lang][key];
+  const monthsList = lang === 'uk' ? MONTHS_UK : MONTHS_EN;
   const currentMonthIdx = new Date().getMonth();
-  const monthsList = lang === 'uk' ? MONTHS_UK : MONTHS_EN; // Full names
 
   const setLang = (l) => { setLangState(l); localStorage.setItem('app_lang', l); };
   const toggleTheme = () => {
@@ -214,6 +214,7 @@ function App() {
       </AnimatePresence>
 
       <div className="app-container">
+        
         {['home', 'marathons', 'health'].includes(activeTab) && (
           <header className="fixed-header">
             <div></div>
@@ -322,7 +323,7 @@ function App() {
                               <div className="menu-cat-neon" style={{color: cat?.color || '#8B5CF6'}}>{cat?.label}</div>
                               <p className="menu-desc-clamp">{m.desc}</p>
                               {!isPurchased(m.id) ? (
-                                <button className="menu-price-large" onClick={() => buyMenu(m)}>{t('menu_buy')} — {m.price} ₴</button>
+                                <button className="menu-buy-btn" onClick={() => buyMenu(m)}><CreditCard size={20}/> {t('menu_buy')} — {m.price} ₴</button>
                               ) : (
                                 <div style={{background:'green', color:'white', padding:'10px 20px', borderRadius:16, fontWeight:700}}>✓ {t('purchased')}</div>
                               )}
