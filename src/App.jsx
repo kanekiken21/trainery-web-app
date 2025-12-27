@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Home, Zap, Activity, User, Settings, Lock, Copy, Moon, Sun, Globe, ArrowLeft, ChevronRight, Sparkles, Instagram, Send, Users, CalendarHeart, Utensils, Scale, Dumbbell, HeartPulse, ShieldCheck, Flame, Plus, Trash2, CreditCard, HelpCircle, X, BookOpen, Check, Search, FileText } from 'lucide-react';
 import './App.css';
@@ -9,9 +9,6 @@ const spring = { type: "spring", stiffness: 300, damping: 25 };
 const containerVars = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVars = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: spring } };
 
-const MONTHS_UK = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
-const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
 const NEWS_THEMES = [
   { bg: 'linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%)', text: '#000' },
   { bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)', text: '#fff' },
@@ -19,7 +16,6 @@ const NEWS_THEMES = [
   { bg: 'linear-gradient(135deg, #333 0%, #000 100%)', text: '#fff' }
 ];
 
-// КАТЕГОРИИ (1400 / 1600)
 const MENU_CATEGORIES = [
   { id: '1400', label: '1400 ККАЛ', color: '#FF9A44' },
   { id: '1600', label: '1600 ККАЛ', color: '#10B981' }
@@ -95,14 +91,16 @@ function App() {
   const [viewCollection, setViewCollection] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
+  // КАТЕГОРИИ МЕНЮ
   const [activeCategory, setActiveCategory] = useState('1400');
-  
+  const [activeMenuIndex, setActiveMenuIndex] = useState(0); // ДЛЯ ТОЧЕК
+
   const [adminTab, setAdminTab] = useState('news');
   const [newArticle, setNewArticle] = useState({ title: '', body: '', themeIdx: 0 });
   const [newMenu, setNewMenu] = useState({ title: '', desc: '', price: '', cat: '1400' });
 
   const t = (key) => T[lang][key];
-  const monthsList = lang === 'uk' ? MONTHS_UK : MONTHS_EN;
+  const monthsList = lang === 'uk' ? ['Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'] : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const currentMonthIdx = new Date().getMonth();
 
   const setLang = (l) => { setLangState(l); localStorage.setItem('app_lang', l); };
@@ -155,6 +153,14 @@ function App() {
   const isPurchased = (id) => myCollection.some(m => m.id === id);
   const filteredCollection = myCollection.filter(m => m.title.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredMenus = menus.filter(m => m.cat === activeCategory);
+
+  // СЛУШАТЕЛЬ СКРОЛЛА ДЛЯ ТОЧЕК
+  const handleMenuScroll = (e) => {
+    const scrollLeft = e.target.scrollLeft;
+    const width = e.target.offsetWidth;
+    const index = Math.round(scrollLeft / width);
+    setActiveMenuIndex(index);
+  };
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -210,7 +216,10 @@ function App() {
           <header className="fixed-header">
             <div></div>
             <div className="header-center">
-              {!imgErr ? <img src="1.png" className="app-logo" onError={()=>setImgErr(true)}/> : <Zap color="#8B5CF6"/>}
+              <div className="logo-glow-wrapper">
+                <div className="logo-glow"></div>
+                {!imgErr ? <img src="1.png" className="app-logo" onError={()=>setImgErr(true)}/> : <Zap color="#8B5CF6"/>}
+              </div>
               <span className="header-title">Trainery</span>
             </div>
             <motion.div className="profile-btn" whileTap={{scale:0.9}} onClick={() => setActiveTab('profile')}>
@@ -222,6 +231,7 @@ function App() {
         <div className="content-area">
           <AnimatePresence mode="wait">
             
+            {/* ГЛАВНАЯ */}
             {activeTab === 'home' && (
               <motion.div key="home" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}><h2>{t('hello')}</h2><p>{t('sub')}</p></motion.div>
@@ -242,6 +252,7 @@ function App() {
               </motion.div>
             )}
 
+            {/* МАРАФОНЫ */}
             {activeTab === 'marathons' && (
               <motion.div key="marathons" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}><h2>{t('m_title')}</h2><p>{t('m_sub')}</p></motion.div>
@@ -265,6 +276,7 @@ function App() {
               </motion.div>
             )}
 
+            {/* ЗДОРОВЬЕ */}
             {activeTab === 'health' && (
               <motion.div key="health" className="page-wrapper" variants={containerVars} initial="hidden" animate="visible" exit={{opacity:0, y:-10}}>
                 <motion.div className="section-header" variants={itemVars}><h2>{t('h_title')}</h2><p>{t('h_sub')}</p></motion.div>
@@ -301,29 +313,30 @@ function App() {
 
                   {filteredMenus.length > 0 ? (
                     <>
-                      <div className="menu-slider-container">
-                        {filteredMenus.map(m => (
-                          <motion.div key={m.id} className="menu-card-large" whileTap={{scale:0.98}}>
-                            <div className="icon-glow-container"><Utensils size={50}/></div>
-                            <h2 style={{margin:'10px 0', fontSize:24, fontWeight:800}}>{m.title}</h2>
-                            <div className="menu-category-neon" style={{color: MENU_CATEGORIES.find(c=>c.id===m.cat)?.color}}>
-                              {MENU_CATEGORIES.find(c=>c.id===m.cat)?.label}
-                            </div>
-                            <p style={{opacity:0.7, marginBottom:20}}>{m.desc}</p>
-                            {!isPurchased(m.id) ? (
-                              <button className="menu-price-large" onClick={() => buyMenu(m)}>{t('menu_buy')} — {m.price} ₴</button>
-                            ) : (
-                              <div style={{background:'green', color:'white', padding:'10px 20px', borderRadius:16, fontWeight:700}}>✓ {t('purchased')}</div>
-                            )}
-                          </motion.div>
-                        ))}
+                      <div className="menu-carousel" onScroll={handleMenuScroll}>
+                        {filteredMenus.map(m => {
+                          const cat = MENU_CATEGORIES.find(c => c.id === m.cat);
+                          return (
+                            <motion.div key={m.id} className="menu-card-swipe" whileTap={{scale:0.98}}>
+                              <div className="icon-glow-container"><Utensils size={50}/></div>
+                              <h2 style={{margin:'10px 0', fontSize:24, fontWeight:800}}>{m.title}</h2>
+                              <div className="menu-cat-neon" style={{color: cat?.color || '#8B5CF6'}}>{cat?.label}</div>
+                              <p className="menu-desc-clamp">{m.desc}</p>
+                              {!isPurchased(m.id) ? (
+                                <button className="menu-price-large" onClick={() => buyMenu(m)}>{t('menu_buy')} — {m.price} ₴</button>
+                              ) : (
+                                <div style={{background:'green', color:'white', padding:'10px 20px', borderRadius:16, fontWeight:700}}>✓ {t('purchased')}</div>
+                              )}
+                            </motion.div>
+                          );
+                        })}
                       </div>
                       <div className="pagination-dots">
-                        {filteredMenus.map((_, i) => <div key={i} className={`dot ${i===0?'active':''}`}/>)}
+                        {filteredMenus.map((_, i) => <div key={i} className={`dot ${i===activeMenuIndex?'active':''}`}/>)}
                       </div>
                     </>
                   ) : (
-                    <div className="glass-card" style={{width:'100%', minHeight:300}}>
+                    <div className="glass-card" style={{width:'100%', minHeight:200, marginTop:10}}>
                       <div className="icon-glow-container" style={{background:'var(--accent)'}}><Lock size={50}/></div>
                       <h3>{t('menu_empty')}</h3><p>{t('menu_soon')}</p>
                     </div>
@@ -332,9 +345,9 @@ function App() {
               </motion.div>
             )}
 
-            {/* ПРОФИЛЬ, НАСТРОЙКИ, АДМИНКА, КОЛЛЕКЦИЯ (Остаются такими же) */}
+            {/* ПРОФИЛЬ */}
             {activeTab === 'profile' && (
-              <motion.div key="profile" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}}>
+              <motion.div key="profile" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
                 <div className="page-nav-header"><motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('home')}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('prof')}</div><div></div></div>
                 <div className="scroll-content">
                   <div className="avatar-section">{user?.photo_url ? <img src={user.photo_url} className="avatar-big"/> : <User size={50}/>}</div><h2 className="user-name">{user?.first_name}</h2><p className="user-handle">@{user?.username}</p><motion.div className="id-chip" onClick={copyId} whileTap={{scale:0.95}}><ShieldCheck size={16}/> ID: {user?.id} {copied && "✓"}</motion.div>
@@ -343,6 +356,7 @@ function App() {
               </motion.div>
             )}
 
+            {/* МОЯ КОЛЛЕКЦИЯ */}
             {viewCollection && (
               <motion.div className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:210}}>
                 <div className="page-nav-header"><motion.div className="back-btn-circle" onClick={()=>setViewCollection(false)}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('collection')}</div><div></div></div>
@@ -357,13 +371,7 @@ function App() {
               </motion.div>
             )}
 
-            {activeTab === 'settings' && (
-              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25}}>
-                <div className="page-nav-header"><motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('set')}</div><div></div></div>
-                <div className="scroll-content"><div className="menu-stack" style={{marginBottom: 30}}><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={toggleTheme}>{theme==='light'?<Moon size={24}/>:<Sun size={24}/>}<span style={{flex:1, textAlign:'left'}}>{t('theme')}</span></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setLang(lang==='uk'?'en':'uk')}><Globe size={24}/><span style={{flex:1, textAlign:'left'}}>{t('lang')}</span><span style={{opacity:0.6, fontWeight: 800}}>{lang.toUpperCase()}</span></motion.div></div><h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4><div className="menu-stack"><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery_community', true)}><Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/julschannelua', true)}><Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div></div></div>
-              </motion.div>
-            )}
-
+            {/* АДМИНКА */}
             {activeTab === 'admin' && (
               <motion.div key="admin" className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}}>
                 <div className="page-nav-header"><motion.div className="back-btn-circle" onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('adm')}</div><div></div></div>
@@ -378,10 +386,25 @@ function App() {
               </motion.div>
             )}
 
+            {/* ПРОСМОТР СТАТЬИ */}
             {viewArticle && (
               <motion.div className="fullscreen-page" initial={{y:'100%'}} animate={{y:0}} exit={{y:'100%'}} transition={{type:"spring", damping:25}} style={{zIndex:300}}>
                 <div className="page-nav-header"><motion.div className="back-btn-circle" onClick={()=>setViewArticle(null)}><X size={24}/></motion.div><div className="page-nav-title">News</div><div></div></div>
                 <div className="scroll-content" style={{alignItems:'flex-start', paddingTop: 20}}><div className="news-card" style={{background: viewArticle.bg, color: viewArticle.text, width:'100%', marginBottom:20, height:'auto', minHeight:120}}><div className="news-date">{viewArticle.date}</div><div className="news-title" style={{fontSize:24}}>{viewArticle.title}</div></div><div style={{fontSize:16, lineHeight:1.6, whiteSpace:'pre-wrap'}}>{viewArticle.body}</div></div>
+              </motion.div>
+            )}
+
+            {/* НАСТРОЙКИ */}
+            {activeTab === 'settings' && (
+              <motion.div key="settings" className="fullscreen-page" initial={{x:'100%'}} animate={{x:0}} exit={{x:'100%'}} transition={{type:"spring", damping:25, stiffness:300}}>
+                <div className="page-nav-header"><motion.div className="back-btn-circle" whileTap={{scale:0.9}} onClick={()=>setActiveTab('profile')}><ArrowLeft size={24}/></motion.div><div className="page-nav-title">{t('set')}</div><div></div></div>
+                <div className="scroll-content">
+                  <div className="menu-stack" style={{marginBottom: 30}}>
+                     <motion.div className="menu-row" whileTap={{scale:0.98}} onClick={toggleTheme}>{theme==='light'?<Moon size={24}/>:<Sun size={24}/>}<span style={{flex:1, textAlign:'left'}}>{t('theme')}</span></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>setLang(lang==='uk'?'en':'uk')}><Globe size={24}/><span style={{flex:1, textAlign:'left'}}>{t('lang')}</span><span style={{opacity:0.6, fontWeight: 800}}>{lang.toUpperCase()}</span></motion.div>
+                  </div>
+                  <h4 style={{width:'100%', opacity:0.5, marginBottom:12, paddingLeft:5, fontWeight: 700}}>Community</h4>
+                  <div className="menu-stack"><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://www.instagram.com/hharbarr?igsh=NmM3bjBnejlpMHpl&utm_source=qr', false)}><Instagram size={24} color="#E1306C"/> {t('insta')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/trainery_community', true)}><Users size={24} color="#0088cc"/> {t('tg_bot')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div><motion.div className="menu-row" whileTap={{scale:0.98}} onClick={()=>handleLink('https://t.me/julschannelua', true)}><Send size={24} color="#0088cc"/> {t('tg_mom')} <ChevronRight size={20} style={{marginLeft:'auto', opacity:0.3}}/></motion.div></div>
+                </div>
               </motion.div>
             )}
 
